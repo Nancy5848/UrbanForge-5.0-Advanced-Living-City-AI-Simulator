@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="en" data-tod="morning">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>UrbanForge 5.0 — Living City Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   URBANFORGE 5.0 — COMPLETE DESIGN SYSTEM
+═══════════════════════════════════════════════════════════ */
+:root{
+  --F:'Orbitron',sans-serif;
+  --B:'Rajdhani',sans-serif;
+  --T:all .5s cubic-bezier(.4,0,.2,1);
+
+  /* Morning */
+  --sky1:#ffd89b;--sky2:#ff9a5c;--sky3:#87ceeb;
+  --ambient:rgba(255,220,120,.18);
+  --sun-col:#ffd700;
+  --shadow-col:rgba(255,140,50,.25);
+  --ground:#7ec850;--ground2:#5a9e35;
+  --road:#4a4a5a;--road-line:#ffd700;
+  --sidewalk:#d4c4a8;
+  --nav:#1a2a3a;
+  --sidebar:#f5f8fc;--sb-border:#d0e4f8;
+  --card:#fff;--card-b:#e0eef8;
+  --txt:#0d1b2a;--txt2:#3a5068;--muted:#8aa4be;
+  --accent:#0ea5e9;--glow:rgba(14,165,233,.3);
+  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+  --purple:#8b5cf6;
+}
+[data-tod="afternoon"]{
+  --sky1:#87ceeb;--sky2:#c8e6fa;--sky3:#e0f0ff;
+  --ambient:rgba(255,255,255,.08);
+  --sun-col:#fff9c4;
+  --shadow-col:rgba(0,50,100,.18);
+}
+[data-tod="evening"]{
+  --sky1:#1a1035;--sky2:#6b21a8;--sky3:#f97316;
+  --ambient:rgba(180,100,255,.12);
+  --sun-col:#ff6b35;
+  --shadow-col:rgba(100,0,150,.3);
+  --ground:#3a6228;--ground2:#2a4a1c;
+  --nav:#0a0514;--sidebar:#0d0820;--sb-border:#2d1850;
+  --card:#110d20;--card-b:#2d1850;
+  --txt:#e2d8f8;--txt2:#9d87c8;--muted:#4a3868;
+  --accent:#a855f7;--glow:rgba(168,85,247,.3);
+}
+[data-tod="night"]{
+  --sky1:#000510;--sky2:#0a0f2a;--sky3:#050a18;
+  --ambient:rgba(30,80,180,.08);
+  --sun-col:#c8d8ff;
+  --shadow-col:rgba(0,10,60,.4);
+  --ground:#1a2e1a;--ground2:#0f1f0f;
+  --nav:#020408;--sidebar:#050a14;--sb-border:#1a2a4a;
+  --card:#080c18;--card-b:#162040;
+  --txt:#c8d8f8;--txt2:#7090c0;--muted:#304060;
+  --accent:#38bdf8;--glow:rgba(56,189,248,.25);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--B);background:var(--sidebar);color:var(--txt);transition:background .8s,color .5s}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px}
+
+/* ═══ TOPBAR ═══ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:52px;z-index:2000;
+  background:var(--nav);border-bottom:1px solid rgba(255,255,255,.08);
+  box-shadow:0 2px 20px rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;transition:background .8s;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{font-size:1.4rem;animation:spin-slow 20s linear infinite}
+@keyframes spin-slow{to{transform:rotate(360deg)}}
+.brand-name{font-family:var(--F);font-size:.9rem;font-weight:900;color:#fff;letter-spacing:.08em;text-shadow:0 0 20px var(--glow)}
+.brand-tag{font-family:var(--F);font-size:.45rem;color:var(--accent);letter-spacing:.3em;opacity:.8}
+.topbar-center{display:flex;align-items:center;gap:8px}
+.tod-btn{
+  font-family:var(--F);font-size:.55rem;letter-spacing:.08em;font-weight:700;
+  padding:4px 10px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);cursor:pointer;
+  transition:var(--T);white-space:nowrap;
+}
+.tod-btn.active,.tod-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 12px var(--glow)}
+.topbar-right{display:flex;align-items:center;gap:7px}
+.tb{
+  font-family:var(--F);font-size:.55rem;font-weight:700;letter-spacing:.07em;
+  color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  border-radius:6px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:5px;
+  transition:var(--T);white-space:nowrap;
+}
+.tb:hover{background:rgba(255,255,255,.2);border-color:var(--accent)}
+.tb.ac{background:var(--accent);border-color:var(--accent)}
+.tb.ac:hover{filter:brightness(1.1)}
+.tb.red:hover{background:var(--red);border-color:var(--red)}
+.tb.grn{background:var(--green);border-color:var(--green)}
+.tb.grn:hover{filter:brightness(1.1)}
+
+/* Music toggle */
+.music-btn{font-size:1rem;background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;transition:var(--T)}
+.music-btn:hover{background:rgba(255,255,255,.1)}
+.music-btn.playing{animation:music-pulse 1s ease-in-out infinite}
+@keyframes music-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* ═══ LAYOUT ═══ */
+.layout{display:grid;grid-template-columns:220px 1fr 230px;height:calc(100vh - 52px);margin-top:52px;overflow:hidden}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{
+  background:var(--sidebar);border-right:1px solid var(--sb-border);
+  display:flex;flex-direction:column;overflow-y:auto;transition:background .8s;
+}
+.sb-head{padding:10px 12px 8px;border-bottom:1px solid var(--sb-border);flex-shrink:0}
+.sb-title{font-family:var(--F);font-size:.56rem;font-weight:700;letter-spacing:.22em;color:var(--accent);display:block}
+.sb-sub{font-size:.7rem;color:var(--muted);display:block;margin-top:1px}
+.sb-search{
+  margin:6px 10px;display:flex;align-items:center;gap:6px;
+  background:var(--card);border:1px solid var(--card-b);border-radius:8px;
+  padding:5px 9px;
+}
+.sb-search input{flex:1;background:none;border:none;outline:none;font-size:.78rem;color:var(--txt);font-family:var(--B)}
+.sb-search input::placeholder{color:var(--muted)}
+.sb-search i{color:var(--muted);font-size:.8rem}
+
+.sb-sec{padding:6px 8px 3px;border-bottom:1px solid var(--sb-border);flex-shrink:0}
+.sec-lbl{font-size:.62rem;font-weight:700;letter-spacing:.12em;color:var(--txt2);text-transform:uppercase;margin-bottom:5px;padding-left:2px}
+.pal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding-bottom:4px}
+.pal-item{
+  background:var(--card);border:1.5px solid var(--card-b);border-radius:9px;
+  padding:5px 2px 4px;text-align:center;cursor:grab;
+  transition:transform .14s,box-shadow .14s,border-color .14s,background .5s;
+  user-select:none;position:relative;
+}
+.pal-item:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 14px var(--glow)}
+.pal-item:active{cursor:grabbing;transform:scale(.94)}
+.pal-item .pi-svg{width:38px;height:38px;display:block;margin:0 auto;overflow:hidden}
+.pal-item .pi-name{font-size:.48rem;font-weight:700;color:var(--txt);margin-top:3px;text-transform:uppercase;letter-spacing:.04em;line-height:1.1}
+.pal-item .pi-cat{font-size:.44rem;color:var(--accent);margin-top:1px}
+
+/* Filters row */
+.filter-row{display:flex;gap:4px;padding:6px 8px;flex-wrap:wrap;border-bottom:1px solid var(--sb-border);flex-shrink:0}
+.flt{font-size:.58rem;font-family:var(--F);padding:3px 8px;border-radius:14px;border:1px solid var(--card-b);background:var(--card);color:var(--txt2);cursor:pointer;transition:var(--T)}
+.flt.on,.flt:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Connection panel */
+.conn-panel{padding:7px 8px;border-bottom:1px solid var(--sb-border);flex-shrink:0}
+.conn-title{font-family:var(--F);font-size:.54rem;letter-spacing:.16em;color:var(--muted);margin-bottom:5px}
+.conn-types{display:flex;gap:4px;flex-wrap:wrap}
+.ctype{font-size:.56rem;font-weight:700;font-family:var(--F);padding:3px 9px;border-radius:12px;border:1.5px solid var(--card-b);background:var(--card);color:var(--txt2);cursor:pointer;transition:var(--T)}
+.ctype:hover,.ctype.on{border-color:var(--accent);background:var(--accent);color:#fff}
+
+/* Layer control */
+.layer-panel{padding:6px 8px;border-bottom:1px solid var(--sb-border);flex-shrink:0}
+.layer-title{font-family:var(--F);font-size:.54rem;letter-spacing:.16em;color:var(--muted);margin-bottom:5px}
+.layer-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.layer-lbl{font-size:.7rem;color:var(--txt2)}
+.tog-sm{position:relative;width:32px;height:16px;cursor:pointer}
+.tog-sm input{opacity:0;width:0;height:0}
+.tog-track{position:absolute;inset:0;background:var(--card-b);border-radius:8px;transition:.3s}
+.tog-sm input:checked+.tog-track{background:var(--accent)}
+.tog-track::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:.3s}
+.tog-sm input:checked+.tog-track::after{transform:translateX(16px)}
+
+.sb-opts{padding:8px;flex-shrink:0}
+.opt-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.opt-lbl{font-size:.72rem;color:var(--txt2)}
+
+/* ═══ CANVAS AREA ═══ */
+.canvas-wrap{display:flex;flex-direction:column;overflow:hidden;position:relative;background:#000}
+.canvas-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:5px 12px;background:rgba(0,0,0,.3);
+  border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;backdrop-filter:blur(10px);
+}
+.c-info{font-size:.7rem;color:var(--muted);font-style:italic}
+.canvas-tools{display:flex;align-items:center;gap:6px}
+.ctool{
+  width:28px;height:28px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;color:var(--txt2);cursor:pointer;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;transition:var(--T);
+}
+.ctool:hover,.ctool.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.zlbl{font-family:var(--F);font-size:.55rem;color:var(--txt2);min-width:36px;text-align:center}
+
+/* ═══ CITY VIEWPORT ═══ */
+.cvp{flex:1;overflow:auto;position:relative;cursor:default}
+#cityCanvas{
+  width:2000px;height:1400px;position:relative;
+  transform-origin:top left;
+  perspective:1200px;
+}
+
+/* ── SKY & ENVIRONMENT ── */
+.sky-layer{
+  position:absolute;inset:0;z-index:0;
+  transition:background 2s ease;
+}
+[data-tod="morning"] .sky-layer{background:linear-gradient(180deg,#ff9a5c 0%,#ffd89b 30%,#87ceeb 55%,#7ec850 55%,#5a9e35 100%)}
+[data-tod="afternoon"] .sky-layer{background:linear-gradient(180deg,#2196f3 0%,#64b5f6 45%,#90caf9 55%,#7ec850 55%,#5a9e35 100%)}
+[data-tod="evening"] .sky-layer{background:linear-gradient(180deg,#0d0421 0%,#6b21a8 25%,#f97316 50%,#3a6228 55%,#2a4a1c 100%)}
+[data-tod="night"] .sky-layer{background:linear-gradient(180deg,#000510 0%,#0a0f2a 50%,#1a2e1a 55%,#0f1f0f 100%)}
+
+/* Sun/Moon */
+.sun{
+  position:absolute;width:60px;height:60px;border-radius:50%;
+  box-shadow:0 0 40px var(--sun-col),0 0 80px var(--sun-col);
+  z-index:1;transition:all 2s ease;pointer-events:none;
+}
+[data-tod="morning"] .sun{background:radial-gradient(circle,#fff5cc,#ffd700);top:20%;left:10%;width:50px;height:50px}
+[data-tod="afternoon"] .sun{background:radial-gradient(circle,#fff,#fffde7);top:8%;left:45%;width:65px;height:65px;box-shadow:0 0 60px #fff9c4,0 0 120px rgba(255,250,196,.5)}
+[data-tod="evening"] .sun{background:radial-gradient(circle,#ff6b35,#d32f2f);top:42%;left:85%;width:55px;height:55px}
+[data-tod="night"] .sun{background:radial-gradient(circle,#f0f0ff,#c8d8ff);top:15%;left:75%;width:40px;height:40px;box-shadow:0 0 20px #c8d8ff,0 0 40px rgba(200,216,255,.3)}
+
+/* Stars */
+.stars{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity 2s}
+[data-tod="evening"] .stars{opacity:.4}
+[data-tod="night"] .stars{opacity:1}
+
+/* Clouds */
+.cloud-layer{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.cloud-svg{position:absolute;transition:opacity 2s}
+[data-tod="evening"] .cloud-svg,[data-tod="night"] .cloud-svg{opacity:.3}
+
+/* Ground plane / 3D perspective */
+.ground-plane{
+  position:absolute;bottom:0;left:0;right:0;height:45%;z-index:3;
+  background:var(--ground);
+  box-shadow:inset 0 4px 20px rgba(0,0,0,.2);
+  transition:background .8s;
+}
+.ground-texture{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,0,0,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,0,0,.03) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+
+/* Isometric shadow */
+.iso-shadow{
+  position:absolute;
+  background:var(--shadow-col);
+  border-radius:50%;
+  filter:blur(8px);
+  transform:skewX(-30deg) scaleY(.3);
+  transition:background .5s;
+  pointer-events:none;z-index:8;
+}
+
+/* Connection SVG layer */
+#connSvg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6;overflow:visible}
+
+/* Grid layer */
+.grid-layer{position:absolute;inset:0;z-index:4;pointer-events:none;transition:opacity .3s}
+.grid-layer.hidden{opacity:0}
+
+/* ═══ CITY ITEMS — 3D ISOMETRIC STYLE ═══ */
+.city-item{
+  position:absolute;z-index:10;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;
+  user-select:none;
+  transform-style:preserve-3d;
+  transition:filter .5s;
+}
+.city-item.depth-1{z-index:10}
+.city-item.depth-2{z-index:11}
+.city-item.depth-3{z-index:12}
+
+.ci-wrap{
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .2s;
+}
+.ci-wrap:hover{transform:scale(1.05) translateY(-4px)}
+.city-item.selected .ci-wrap{transform:scale(1.08) translateY(-6px)}
+
+.ci-svg{display:block;transition:filter .5s}
+
+/* 3D Depth shadow below item */
+.ci-ground-shadow{
+  position:absolute;
+  bottom:-8px;left:10%;right:10%;height:8px;
+  background:rgba(0,0,0,.25);
+  border-radius:50%;filter:blur(5px);
+  pointer-events:none;
+}
+
+/* Selection ring */
+.city-item.selected::after{
+  content:'';position:absolute;inset:-4px;
+  border:2px solid var(--accent);border-radius:12px;
+  box-shadow:0 0 16px var(--glow);
+  pointer-events:none;animation:sel-pulse 1.5s ease-in-out infinite;
+}
+@keyframes sel-pulse{0%,100%{box-shadow:0 0 16px var(--glow)}50%{box-shadow:0 0 28px var(--glow),0 0 50px var(--glow)}}
+
+.city-item .ci-label{
+  font-size:.5rem;font-weight:700;letter-spacing:.06em;
+  color:var(--txt2);text-transform:uppercase;margin-top:2px;
+  background:rgba(255,255,255,.75);padding:1px 5px;border-radius:3px;
+  backdrop-filter:blur(4px);pointer-events:none;white-space:nowrap;
+}
+[data-tod="evening"] .city-item .ci-label,[data-tod="night"] .city-item .ci-label{
+  background:rgba(10,5,30,.75);color:var(--txt);
+}
+
+.ci-del{
+  position:absolute;top:-8px;right:-8px;width:18px;height:18px;
+  background:var(--red);border:none;border-radius:50%;color:#fff;
+  font-size:.58rem;cursor:pointer;display:none;align-items:center;
+  justify-content:center;z-index:30;box-shadow:0 2px 6px rgba(239,68,68,.4);
+}
+.city-item:hover .ci-del{display:flex}
+
+/* Info popup */
+.ci-info-pop{
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:var(--nav);color:var(--txt);border:1px solid var(--accent);
+  border-radius:8px;padding:6px 10px;font-size:.68rem;font-family:var(--B);
+  min-width:120px;white-space:nowrap;z-index:100;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);pointer-events:none;
+  opacity:0;transform:translateX(-50%) translateY(4px);
+  transition:opacity .2s,transform .2s;
+}
+.city-item:hover .ci-info-pop{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── HUMAN ANIMATIONS ── */
+.human-item{position:absolute;z-index:20;pointer-events:all;cursor:pointer}
+.human-body{position:relative;animation:human-walk 0.5s steps(2) infinite}
+@keyframes human-walk{0%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.human-item.walking{animation:walk-path 12s linear infinite}
+@keyframes walk-path{
+  0%{transform:translateX(0) scaleX(1)}
+  48%{transform:translateX(200px) scaleX(1)}
+  50%{transform:translateX(200px) scaleX(-1)}
+  98%{transform:translateX(0) scaleX(-1)}
+  100%{transform:translateX(0) scaleX(1)}
+}
+.human-item.idle .human-body{animation:idle-bob 2s ease-in-out infinite}
+@keyframes idle-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.human-item.shopping{animation:shopping-wander 8s ease-in-out infinite}
+@keyframes shopping-wander{
+  0%,100%{transform:translate(0,0)}
+  25%{transform:translate(20px,-10px)}
+  50%{transform:translate(0,-5px)}
+  75%{transform:translate(-15px,8px)}
+}
+
+/* ── VEHICLE ANIMATIONS ── */
+.vehicle-item{position:absolute;z-index:18;pointer-events:all;cursor:pointer}
+.vehicle-item.driving{animation:auto-drive 10s linear infinite}
+@keyframes auto-drive{
+  0%{transform:translateX(0) scaleX(1)}
+  47%{transform:translateX(300px) scaleX(1)}
+  50%{transform:translateX(300px) scaleX(-1)}
+  97%{transform:translateX(0) scaleX(-1)}
+  100%{transform:translateX(0) scaleX(1)}
+}
+.vehicle-item.bus-route{animation:bus-drive 18s linear infinite}
+@keyframes bus-drive{
+  0%{transform:translateX(0) scaleX(1)}
+  45%{transform:translateX(400px) scaleX(1)}
+  50%{transform:translateX(400px) scaleX(-1)}
+  95%{transform:translateX(0) scaleX(-1)}
+  100%{transform:translateX(0) scaleX(1)}
+}
+.vehicle-item.bike-ride{animation:bike-cycle 7s ease-in-out infinite}
+@keyframes bike-cycle{
+  0%,100%{transform:translateX(0)}
+  50%{transform:translateX(150px)}
+}
+
+/* ── ANIMAL ANIMATIONS ── */
+.animal-item{position:absolute;z-index:16;pointer-events:all;cursor:pointer}
+.animal-item.roaming{animation:animal-roam 15s ease-in-out infinite}
+@keyframes animal-roam{
+  0%,100%{transform:translate(0,0) scaleX(1)}
+  20%{transform:translate(60px,-20px) scaleX(1)}
+  40%{transform:translate(120px,10px) scaleX(-1)}
+  60%{transform:translate(60px,30px) scaleX(-1)}
+  80%{transform:translate(-30px,15px) scaleX(1)}
+}
+.animal-item.bird-fly{animation:bird-flight 12s linear infinite}
+@keyframes bird-flight{
+  0%{transform:translate(0,0)}
+  100%{transform:translate(500px,-100px)}
+}
+
+/* ── NIGHT GLOW ── */
+[data-tod="evening"] .building-glow,
+[data-tod="night"] .building-glow{
+  filter:drop-shadow(0 0 6px rgba(255,200,50,.9)) drop-shadow(0 0 16px rgba(255,180,30,.5));
+  animation:win-glow 4s ease-in-out infinite;
+}
+@keyframes win-glow{
+  0%,100%{filter:drop-shadow(0 0 6px rgba(255,200,50,.9)) drop-shadow(0 0 16px rgba(255,180,30,.5))}
+  50%{filter:drop-shadow(0 0 10px rgba(255,220,70,1)) drop-shadow(0 0 24px rgba(255,200,50,.7))}
+}
+
+/* Shop open sign blink */
+[data-tod="morning"] .shop-sign,[data-tod="afternoon"] .shop-sign{animation:sign-blink 3s ease-in-out infinite}
+@keyframes sign-blink{0%,100%{opacity:1}50%{opacity:.6}}
+[data-tod="evening"] .shop-sign,[data-tod="night"] .shop-sign{animation:neon-blink 2s steps(1) infinite}
+@keyframes neon-blink{0%,100%{opacity:1}48%{opacity:.3}52%{opacity:1}}
+
+/* Smoke from factory/chimney */
+.smoke-puff{
+  position:absolute;border-radius:50%;
+  animation:smoke-rise 3s ease-out infinite;
+  pointer-events:none;
+}
+@keyframes smoke-rise{
+  0%{transform:translateY(0) scale(.3);opacity:.7}
+  100%{transform:translateY(-60px) scale(1.5);opacity:0}
+}
+
+/* Fountain water */
+.fountain-arc{
+  position:absolute;animation:fountain-spray 1.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes fountain-spray{
+  0%,100%{transform:scaleY(1)}
+  50%{transform:scaleY(1.15)}
+}
+
+/* Connection line animations */
+.conn-line{pointer-events:stroke;cursor:pointer;stroke-linecap:round}
+.conn-line.road-conn{stroke:var(--road);stroke-width:4}
+.conn-line.power-conn{stroke:#fbbf24;stroke-width:2;stroke-dasharray:6,4}
+.conn-line.water-conn{stroke:#38bdf8;stroke-width:2;stroke-dasharray:4,4}
+.conn-line.footpath-conn{stroke:var(--sidewalk);stroke-width:5}
+.conn-dot{animation:dot-travel 3s linear infinite}
+
+/* Drop ripple */
+@keyframes ripple-out{0%{transform:scale(.4);opacity:1}100%{transform:scale(3);opacity:0}}
+.drop-ripple{position:absolute;width:80px;height:80px;border:3px solid var(--accent);border-radius:50%;pointer-events:none;animation:ripple-out .7s ease-out forwards;z-index:100;margin:-40px 0 0 -40px}
+
+/* ═══ RIGHT STATS PANEL ═══ */
+.stats{
+  background:var(--sidebar);border-left:1px solid var(--sb-border);
+  display:flex;flex-direction:column;overflow-y:auto;transition:background .8s;
+}
+.st-head{padding:10px 12px 8px;border-bottom:1px solid var(--sb-border);flex-shrink:0}
+.st-title{font-family:var(--F);font-size:.56rem;font-weight:700;letter-spacing:.22em;color:var(--accent);display:block}
+.st-sub{font-size:.68rem;color:var(--muted);display:block;margin-top:1px}
+.stat-card{margin:7px 10px 0;background:var(--card);border:1px solid var(--card-b);border-radius:10px;padding:8px 10px;transition:background .5s,border-color .5s}
+.st-top{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.st-icon{font-size:.85rem}
+.st-lbl{font-size:.62rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.1em}
+.st-val{font-family:var(--F);font-size:1.35rem;font-weight:700;color:var(--txt);line-height:1;transition:all .3s}
+.st-val.big{font-size:1.8rem;color:var(--accent)}
+@keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+.bump{animation:bump .3s ease}
+.st-bar-wrap{height:4px;background:rgba(128,128,128,.15);border-radius:2px;margin-top:6px;overflow:hidden}
+.st-bar{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);background:var(--accent)}
+.st-bar.g{background:var(--green)}.st-bar.a{background:var(--amber)}.st-bar.p{background:var(--purple)}
+.st-hint{font-size:.58rem;color:var(--muted);margin-top:2px}
+.score-card{border-color:var(--accent);background:linear-gradient(135deg,var(--card),rgba(14,165,233,.06))}
+.score-grade{font-size:.7rem;color:var(--accent);font-style:italic;margin-top:3px}
+
+/* Tabs */
+.stat-tabs{display:flex;gap:0;border-bottom:1px solid var(--sb-border);flex-shrink:0}
+.stab{flex:1;font-family:var(--F);font-size:.5rem;letter-spacing:.08em;padding:7px 4px;text-align:center;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:var(--T)}
+.stab.active,.stab:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.stab-content{display:none;flex:1;overflow-y:auto}
+.stab-content.active{display:flex;flex-direction:column}
+
+/* History list */
+.hist-list{padding:8px 10px}
+.hist-item{
+  display:flex;align-items:center;gap:7px;padding:5px 8px;
+  background:var(--card);border:1px solid var(--card-b);border-radius:7px;
+  margin-bottom:4px;cursor:pointer;transition:var(--T);font-size:.7rem;color:var(--txt2);
+}
+.hist-item:hover{border-color:var(--accent);color:var(--txt)}
+.hist-item .hist-ico{font-size:.9rem}
+.hist-time{font-size:.58rem;color:var(--muted);margin-left:auto}
+.hist-restore{background:var(--accent);color:#fff;border:none;border-radius:4px;font-size:.55rem;padding:2px 7px;cursor:pointer;font-family:var(--F)}
+
+/* Log list */
+.log-list{padding:0 10px 8px}
+.log-entry{font-size:.68rem;color:var(--txt2);padding:3px 0;border-bottom:1px solid var(--card-b);animation:fade-in .3s ease}
+.log-entry:last-child{border:none}
+.log-entry.muted{color:var(--muted);font-style:italic}
+@keyframes fade-in{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+
+/* Connection list */
+.conn-list-panel{padding:0 10px 8px}
+.conn-entry{display:flex;justify-content:space-between;align-items:center;font-size:.68rem;padding:3px 0;border-bottom:1px solid var(--card-b);color:var(--txt2)}
+.conn-entry:last-child{border:none}
+.cdel{background:none;border:none;color:var(--red);cursor:pointer;font-size:.75rem;padding:0 4px}
+
+/* Breakdown */
+.bdown-list{padding:0 10px 8px}
+.brow{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;padding:2px 0;border-bottom:1px solid var(--card-b);color:var(--txt2)}
+.brow:last-child{border:none}
+.bempty{font-size:.68rem;color:var(--muted);text-align:center;padding:5px}
+
+/* ═══ TOAST ═══ */
+.toast-msg{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:var(--nav);color:#fff;padding:8px 20px;border-radius:50px;
+  font-size:.78rem;font-family:var(--B);font-weight:600;letter-spacing:.04em;
+  border:1px solid var(--accent);box-shadow:0 4px 24px rgba(0,0,0,.4);
+  opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:9999;white-space:nowrap;
+}
+.toast-msg.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══ MUSIC PLAYER ═══ */
+.music-player{
+  position:fixed;bottom:16px;right:16px;z-index:3000;
+  background:var(--nav);border:1px solid var(--accent);border-radius:14px;
+  padding:10px 14px;display:flex;flex-direction:column;gap:6px;
+  box-shadow:0 4px 24px rgba(0,0,0,.4);min-width:200px;
+  transition:background .5s;
+}
+.mp-title{font-family:var(--F);font-size:.55rem;letter-spacing:.15em;color:var(--accent);margin-bottom:2px}
+.mp-track{font-size:.72rem;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-controls{display:flex;align-items:center;gap:8px}
+.mp-btn{width:26px;height:26px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:var(--T)}
+.mp-btn:hover{background:var(--accent);border-color:var(--accent)}
+.mp-vol{flex:1;height:3px;-webkit-appearance:none;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer}
+.mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.mp-vis{display:flex;align-items:flex-end;gap:2px;height:20px}
+.mp-bar-v{width:3px;background:var(--accent);border-radius:2px;animation:vis-dance 1s ease-in-out infinite}
+.mp-bar-v:nth-child(1){animation-delay:0s}
+.mp-bar-v:nth-child(2){animation-delay:.1s}
+.mp-bar-v:nth-child(3){animation-delay:.2s}
+.mp-bar-v:nth-child(4){animation-delay:.3s}
+.mp-bar-v:nth-child(5){animation-delay:.4s}
+@keyframes vis-dance{0%,100%{height:4px}50%{height:18px}}
+.mp-vis.paused .mp-bar-v{animation:none;height:4px}
+
+/* ═══ MODAL for item info ═══ */
+.info-modal{
+  position:fixed;inset:0;z-index:4000;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+.info-modal.show{opacity:1;pointer-events:all}
+.info-modal-box{
+  background:var(--card);border:1px solid var(--accent);border-radius:16px;
+  padding:24px;max-width:380px;width:90%;
+  box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 40px var(--glow);
+  animation:modal-in .3s ease;
+}
+@keyframes modal-in{from{transform:scale(.9) translateY(20px)}to{transform:scale(1) translateY(0)}}
+.info-modal-box h3{font-family:var(--F);font-size:.9rem;color:var(--accent);margin-bottom:12px}
+.info-modal-box p{font-size:.8rem;color:var(--txt2);margin-bottom:6px}
+.info-modal-box .modal-svg{width:80px;height:80px;float:left;margin:0 14px 8px 0}
+.modal-close{font-family:var(--F);font-size:.6rem;padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;margin-top:14px}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1100px){.layout{grid-template-columns:195px 1fr 205px}}
+@media(max-width:820px){.layout{grid-template-columns:185px 1fr}.stats{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ TOPBAR ════════════════════ -->
+<nav class="topbar">
+  <div class="brand">
+    <span class="brand-icon">🌆</span>
+    <div><div class="brand-name">UrbanForge 5.0</div><div class="brand-tag">Living City Simulator</div></div>
+  </div>
+  <div class="topbar-center">
+    <button class="tod-btn active" data-tod="morning">🌅 Morning</button>
+    <button class="tod-btn" data-tod="afternoon">☀️ Afternoon</button>
+    <button class="tod-btn" data-tod="evening">🌆 Evening</button>
+    <button class="tod-btn" data-tod="night">🌙 Night</button>
+  </div>
+  <div class="topbar-right">
+    <button class="music-btn" id="musicToggle" title="Toggle Music">🎵</button>
+    <button class="tb" id="btnUndo"><i class="bi bi-arrow-counterclockwise"></i> Undo</button>
+    <button class="tb ac" id="btnSave"><i class="bi bi-floppy"></i> Save</button>
+    <button class="tb ac" id="btnLoad"><i class="bi bi-folder2-open"></i> Load</button>
+    <button class="tb grn" id="btnDownload"><i class="bi bi-download"></i> Export</button>
+    <button class="tb red" id="btnClear"><i class="bi bi-trash3"></i> Clear</button>
+  </div>
+</nav>
+
+<!-- ════════════════════ LAYOUT ════════════════════ -->
+<div class="layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <span class="sb-title">BUILD PALETTE</span>
+      <span class="sb-sub">Drag or click to place • connect items</span>
+    </div>
+    <div class="sb-search">
+      <i class="bi bi-search"></i>
+      <input type="text" id="palSearch" placeholder="Search items…"/>
+    </div>
+    <div class="filter-row" id="filterRow">
+      <span class="flt on" data-cat="all">All</span>
+      <span class="flt" data-cat="buildings">🏢</span>
+      <span class="flt" data-cat="nature">🌿</span>
+      <span class="flt" data-cat="roads">🛣️</span>
+      <span class="flt" data-cat="people">👤</span>
+      <span class="flt" data-cat="vehicles">🚗</span>
+      <span class="flt" data-cat="animals">🐾</span>
+      <span class="flt" data-cat="shops">🛍️</span>
+    </div>
+
+    <!-- Palette populated by JS -->
+    <div id="paletteContainer"></div>
+
+    <!-- Connection Mode -->
+    <div class="conn-panel">
+      <div class="conn-title">🔗 CONNECTION MODE</div>
+      <div class="conn-types">
+        <span class="ctype on" data-conn="road">🛣 Road</span>
+        <span class="ctype" data-conn="footpath">🚶 Path</span>
+        <span class="ctype" data-conn="power">⚡ Power</span>
+        <span class="ctype" data-conn="water">💧 Water</span>
+        <span class="ctype" data-conn="none">✕ Off</span>
+      </div>
+    </div>
+
+    <!-- Layers -->
+    <div class="layer-panel">
+      <div class="layer-title">👁 LAYERS</div>
+      <div class="layer-row">
+        <span class="layer-lbl">Show Grid</span>
+        <label class="tog-sm"><input type="checkbox" id="toggleGrid" checked/><div class="tog-track"></div></label>
+      </div>
+      <div class="layer-row">
+        <span class="layer-lbl">Connections</span>
+        <label class="tog-sm"><input type="checkbox" id="toggleConns" checked/><div class="tog-track"></div></label>
+      </div>
+      <div class="layer-row">
+        <span class="layer-lbl">Labels</span>
+        <label class="tog-sm"><input type="checkbox" id="toggleLabels" checked/><div class="tog-track"></div></label>
+      </div>
+      <div class="layer-row">
+        <span class="layer-lbl">Animations</span>
+        <label class="tog-sm"><input type="checkbox" id="toggleAnims" checked/><div class="tog-track"></div></label>
+      </div>
+    </div>
+
+    <div class="sb-opts">
+      <div class="opt-row">
+        <span class="opt-lbl">Snap-to-Grid</span>
+        <label class="tog-sm"><input type="checkbox" id="snapGrid" checked/><div class="tog-track"></div></label>
+      </div>
+      <div class="opt-row">
+        <span class="opt-lbl">Auto-Connect</span>
+        <label class="tog-sm"><input type="checkbox" id="autoConn"/><div class="tog-track"></div></label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ CANVAS ══ -->
+  <main class="canvas-wrap" id="canvasWrap">
+    <div class="canvas-bar">
+      <span class="c-info" id="cInfo">Drop items to build • click connection dots to link</span>
+      <div class="canvas-tools">
+        <button class="ctool active" id="toolSelect" title="Select"><i class="bi bi-cursor"></i></button>
+        <button class="ctool" id="toolMove" title="Pan"><i class="bi bi-arrows-move"></i></button>
+        <button class="ctool" id="toolDelete" title="Delete mode"><i class="bi bi-eraser"></i></button>
+        <span style="width:1px;height:20px;background:rgba(255,255,255,.1)"></span>
+        <button class="ctool" id="zOut" title="Zoom out"><i class="bi bi-dash"></i></button>
+        <span class="zlbl" id="zLbl">100%</span>
+        <button class="ctool" id="zIn" title="Zoom in"><i class="bi bi-plus"></i></button>
+        <button class="ctool" id="zFit" title="Fit view"><i class="bi bi-fullscreen"></i></button>
+      </div>
+    </div>
+    <div class="cvp" id="cvp">
+      <div id="cityCanvas">
+        <!-- Environment -->
+        <div class="sky-layer" id="skyLayer">
+          <!-- Stars (SVG, drawn by JS) -->
+          <svg class="stars" id="starsSvg" viewBox="0 0 2000 700"></svg>
+          <!-- Sun / Moon -->
+          <div class="sun" id="sunMoon"></div>
+          <!-- Clouds -->
+          <div class="cloud-layer" id="cloudLayer"></div>
+        </div>
+        <!-- Ground -->
+        <div class="ground-plane"><div class="ground-texture"></div></div>
+        <!-- Connection SVG -->
+        <svg id="connSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <!-- Grid -->
+        <div class="grid-layer" id="gridLayer" style="background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:60px 60px"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══ STATS PANEL ══ -->
+  <aside class="stats" id="statsPanel">
+    <div class="st-head">
+      <span class="st-title">CITY DASHBOARD</span>
+      <span class="st-sub" id="stTimeLbl">Morning — 6:00 AM</span>
+    </div>
+
+    <div class="stat-card">
+      <div class="st-top"><span class="st-icon">👥</span><span class="st-lbl">Population</span></div>
+      <div class="st-val" id="stPop">0</div>
+      <div class="st-bar-wrap"><div class="st-bar" id="bPop" style="width:0%"></div></div>
+      <div class="st-hint">Target: 1000</div>
+    </div>
+    <div class="stat-card">
+      <div clas="st-top"><span class="st-icon">🌿</span><span class="st-lbl">Greenery</span></div>
+      <div class="st-val" id="stGreen">0%</div>
+      <div class="st-bar-wrap"><div class="st-bar g" id="bGreen" style="width:0%"></div></div>
+      <div class="st-hint">Target: 50%</div>
+    </div>
+    <div class="stat-card">
+      <div class="st-top"><span class="st-icon">😊</span><span class="st-lbl">Happiness</span></div>
+      <div class="st-val" id="stHappy">50%</div>
+      <div class="st-bar-wrap"><div class="st-bar a" id="bHappy" style="width:50%"></div></div>
+      <div class="st-hint">Affects growth</div>
+    </div>
+    <div class="stat-card">
+      <div class="st-top"><span class="st-icon">🚗</span><span class="st-lbl">Traffic</span></div>
+      <div class="st-val" id="stTraffic">Low</div>
+      <div class="st-bar-wrap"><div class="st-bar p" id="bTraffic" style="width:10%"></div></div>
+      <div class="st-hint">Roads & vehicles</div>
+    </div>
+    <div class="stat-card">
+      <div class="st-top"><span class="st-icon">🏗️</span><span class="st-lbl">Structures</span></div>
+      <div class="st-val" id="stItems">0</div>
+      <div class="st-hint">Total placed</div>
+    </div>
+    <div class="stat-card score-card">
+      <div class="st-top"><span class="st-icon">⭐</span><span class="st-lbl">City Score</span></div>
+      <div class="st-val big" id="stScore">0</div>
+      <div class="score-grade" id="stGrade">— Place your first building!</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="stat-tabs">
+      <div class="stab active" data-tab="breakdown">Items</div>
+      <div class="stab" data-tab="connections">Links</div>
+      <div class="stab" data-tab="history">History</div>
+      <div class="stab" data-tab="log">Log</div>
+    </div>
+
+    <div class="stab-content active" id="tab-breakdown">
+      <div class="bdown-list" id="bdownList"><div class="bempty">No items yet</div></div>
+    </div>
+    <div class="stab-content" id="tab-connections">
+      <div class="conn-list-panel" id="connListPanel"><div class="bempty">No connections yet</div></div>
+    </div>
+    <div class="stab-content" id="tab-history">
+      <div class="hist-list" id="histList"><div class="bempty">No history yet</div></div>
+    </div>
+    <div class="stab-content" id="tab-log">
+      <div class="log-list" id="logList"><div class="log-entry muted">Waiting for activity…</div></div>
+    </div>
+  </aside>
+</div>
+
+<!-- MUSIC PLAYER -->
+<div class="music-player" id="musicPlayer" style="display:none">
+  <div class="mp-title">🎵 CITY AMBIENCE</div>
+  <div class="mp-track" id="mpTrack">Morning Birds & City</div>
+  <div class="mp-vis" id="mpVis">
+    <div class="mp-bar-v"></div><div class="mp-bar-v"></div><div class="mp-bar-v"></div>
+    <div class="mp-bar-v"></div><div class="mp-bar-v"></div>
+  </div>
+  <div class="mp-controls">
+    <button class="mp-btn" id="mpPrev">⏮</button>
+    <button class="mp-btn" id="mpPlay">▶</button>
+    <button class="mp-btn" id="mpNext">⏭</button>
+    <input type="range" class="mp-vol" id="mpVol" min="0" max="1" step=".05" value=".5"/>
+  </div>
+</div>
+
+<!-- Item Info Modal -->
+<div class="info-modal" id="infoModal">
+  <div class="info-modal-box">
+    <h3 id="modalTitle">Item Info</h3>
+    <div id="modalBody"></div>
+    <button class="modal-close" id="modalClose">Close</button>
+  </div>
+</div>
+
+<div id="toast" class="toast-msg"></div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   URBANFORGE 3D — Complete City Builder Engine
+   Full JS: SVGs, Drag/Drop, Connections, Humans, Animals,
+   Vehicles, TOD effects, Music, History, Download
+═══════════════════════════════════════════════════════════════════ */
+$(function(){
+
+/* ══════════════════════════════════════════════════════
+   1. SVG LIBRARY — All detailed illustrations
+══════════════════════════════════════════════════════ */
+const SVG = {
+
+  /* BUILDINGS */
+  house:`<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="hwall" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#e8956d"/><stop offset="100%" stop-color="#c97040"/></linearGradient>
+      <linearGradient id="hroof" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c0392b"/><stop offset="100%" stop-color="#922b21"/></linearGradient>
+    </defs>
+    <rect x="8" y="42" width="54" height="36" rx="2" fill="url(#hwall)"/>
+    <polygon points="35,8 3,44 67,44" fill="url(#hroof)"/>
+    <polygon points="35,8 3,44 20,44" fill="#a93226" opacity=".3"/>
+    <rect x="25" y="54" width="20" height="24" rx="1" fill="#6d3a1a"/>
+    <rect x="12" y="46" width="13" height="11" rx="1" fill="#87CEEB"/>
+    <rect x="45" y="46" width="13" height="11" rx="1" fill="#87CEEB"/>
+    <line x1="18.5" y1="46" x2="18.5" y2="57" stroke="rgba(255,255,255,.6)" stroke-width="1"/>
+    <line x1="12" y1="51.5" x2="25" y2="51.5" stroke="rgba(255,255,255,.6)" stroke-width="1"/>
+    <line x1="51.5" y1="46" x2="51.5" y2="57" stroke="rgba(255,255,255,.6)" stroke-width="1"/>
+    <line x1="45" y1="51.5" x2="58" y2="51.5" stroke="rgba(255,255,255,.6)" stroke-width="1"/>
+    <rect x="30" y="62" width="10" height="4" rx="1" fill="#c07830"/>
+    <rect x="6" y="77" width="58" height="3" rx="1" fill="#5a9e35"/>
+    <rect x="6" y="77" width="14" height="3" rx="1" fill="#3d7a25"/>
+    <rect x="50" y="77" width="14" height="3" rx="1" fill="#3d7a25"/>
+  </svg>`,
+
+  skyscraper:`<svg viewBox="0 0 70 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="sky-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e3a6e"/><stop offset="50%" stop-color="#2d5aa0"/><stop offset="100%" stop-color="#1a3460"/></linearGradient>
+      <linearGradient id="sky-side" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#142d56"/><stop offset="100%" stop-color="#1e3a6e"/></linearGradient>
+    </defs>
+    <!-- Main tower -->
+    <rect x="15" y="12" width="40" height="76" rx="2" fill="url(#sky-g)"/>
+    <!-- Side face (3D) -->
+    <polygon points="55,12 62,18 62,88 55,88" fill="url(#sky-side)" opacity=".85"/>
+    <!-- Top section -->
+    <rect x="20" y="6" width="30" height="10" rx="1" fill="#1a2d52"/>
+    <polygon points="55,6 62,12 62,18 55,12" fill="#101e3a"/>
+    <rect x="33" y="1" width="4" height="8" fill="#8ab4e8"/>
+    <!-- Windows front -->
+    <rect x="19" y="18" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".9"/>
+    <rect x="30" y="18" width="7" height="5" rx="1" fill="#87CEEB" opacity=".85"/>
+    <rect x="41" y="18" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".8"/>
+    <rect x="19" y="27" width="7" height="5" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="30" y="27" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".9"/>
+    <rect x="41" y="27" width="7" height="5" rx="1" fill="#87CEEB" opacity=".85"/>
+    <rect x="19" y="36" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".85"/>
+    <rect x="30" y="36" width="7" height="5" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="41" y="36" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".8"/>
+    <rect x="19" y="45" width="7" height="5" rx="1" fill="#87CEEB" opacity=".85"/>
+    <rect x="30" y="45" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".9"/>
+    <rect x="41" y="45" width="7" height="5" rx="1" fill="#87CEEB" opacity=".8"/>
+    <rect x="19" y="54" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".9"/>
+    <rect x="30" y="54" width="7" height="5" rx="1" fill="#87CEEB" opacity=".85"/>
+    <rect x="41" y="54" width="7" height="5" rx="1" fill="#ffd700" class="building-glow" opacity=".9"/>
+    <!-- Side windows -->
+    <rect x="57" y="20" width="4" height="4" rx="1" fill="#ffd700" opacity=".6"/>
+    <rect x="57" y="30" width="4" height="4" rx="1" fill="#87CEEB" opacity=".6"/>
+    <rect x="57" y="40" width="4" height="4" rx="1" fill="#ffd700" opacity=".6"/>
+    <rect x="57" y="50" width="4" height="4" rx="1" fill="#87CEEB" opacity=".6"/>
+    <!-- Lobby -->
+    <rect x="24" y="66" width="22" height="22" rx="1" fill="#1a2d52"/>
+    <rect x="28" y="68" width="14" height="20" rx="1" fill="#87CEEB" opacity=".75"/>
+    <line x1="35" y1="68" x2="35" y2="88" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+  </svg>`,
+
+  apartment:`<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="apt-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#607d8b"/><stop offset="100%" stop-color="#8a9fb5"/></linearGradient>
+    </defs>
+    <rect x="6" y="18" width="56" height="60" rx="2" fill="url(#apt-g)"/>
+    <polygon points="62,18 68,24 68,78 62,78" fill="#4a6070" opacity=".8"/>
+    <rect x="6" y="13" width="56" height="8" rx="1" fill="#455a64"/>
+    <polygon points="62,13 68,18 68,24 62,18" fill="#37474f"/>
+    <!-- Windows 3 rows 4 cols -->
+    <rect x="10" y="24" width="10" height="8" rx="1" fill="#ffd700" class="building-glow" opacity=".85"/>
+    <rect x="25" y="24" width="10" height="8" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="40" y="24" width="10" height="8" rx="1" fill="#ffd700" class="building-glow" opacity=".8"/>
+    <rect x="55" y="24" width="4" height="8" rx="1" fill="#87CEEB" opacity=".7"/>
+    <rect x="10" y="37" width="10" height="8" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="25" y="37" width="10" height="8" rx="1" fill="#ffd700" class="building-glow" opacity=".9"/>
+    <rect x="40" y="37" width="10" height="8" rx="1" fill="#87CEEB" opacity=".85"/>
+    <rect x="55" y="37" width="4" height="8" rx="1" fill="#ffd700" opacity=".65"/>
+    <rect x="10" y="50" width="10" height="8" rx="1" fill="#ffd700" class="building-glow" opacity=".85"/>
+    <rect x="25" y="50" width="10" height="8" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="40" y="50" width="10" height="8" rx="1" fill="#ffd700" class="building-glow" opacity=".8"/>
+    <rect x="55" y="50" width="4" height="8" rx="1" fill="#87CEEB" opacity=".65"/>
+    <!-- Door -->
+    <rect x="26" y="62" width="20" height="16" rx="1" fill="#37474f"/>
+    <rect x="30" y="64" width="12" height="14" rx="1" fill="#87CEEB" opacity=".7"/>
+    <line x1="36" y1="64" x2="36" y2="78" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+  </svg>`,
+
+  hospital:`<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="22" width="60" height="56" rx="2" fill="#e8f5e9"/>
+    <polygon points="65,22 70,28 70,78 65,78" fill="#c8e6c9" opacity=".8"/>
+    <rect x="5" y="16" width="60" height="9" rx="2" fill="#d32f2f"/>
+    <polygon points="65,16 70,22 70,28 65,22" fill="#b71c1c"/>
+    <text x="35" y="24" text-anchor="middle" font-size="5.5" fill="white" font-weight="bold" font-family="sans-serif">HOSPITAL</text>
+    <!-- Cross -->
+    <rect x="30" y="4" width="10" height="14" rx="1" fill="#fff"/>
+    <rect x="24" y="8" width="22" height="8" rx="1" fill="#fff"/>
+    <!-- Windows -->
+    <rect x="9" y="32" width="13" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="28" y="32" width="13" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="47" y="32" width="13" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="9" y="48" width="13" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="47" y="48" width="13" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <!-- ER door -->
+    <rect x="25" y="58" width="22" height="20" rx="1" fill="#c8e6c9"/>
+    <rect x="30" y="60" width="12" height="18" rx="1" fill="#87CEEB" opacity=".75"/>
+    <line x1="36" y1="60" x2="36" y2="78" stroke="rgba(255,255,255,.4)" stroke-width="1"/>
+  </svg>`,
+
+  school:`<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="30" width="62" height="50" rx="2" fill="#fff9c4"/>
+    <polygon points="66,30 70,36 70,80 66,80" fill="#f9a825" opacity=".5"/>
+    <polygon points="35,6 2,32 68,32" fill="#d32f2f"/>
+    <polygon points="35,6 2,32 18,32" fill="#b71c1c" opacity=".3"/>
+    <polygon points="68,32 70,36 66,30" fill="#b71c1c"/>
+    <rect x="32" y="3" width="6" height="10" rx="1" fill="#ffd54f"/>
+    <!-- Bell -->
+    <circle cx="35" cy="29" r="4" fill="#ffd700"/>
+    <!-- Windows -->
+    <rect x="7" y="40" width="15" height="11" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="27" y="40" width="15" height="11" rx="1" fill="#a5d6a7"/>
+    <rect x="47" y="40" width="15" height="11" rx="1" fill="#87CEEB" opacity=".9"/>
+    <!-- Door -->
+    <rect x="25" y="58" width="22" height="22" rx="1" fill="#ffe082"/>
+    <rect x="30" y="60" width="12" height="20" rx="1" fill="#ffd54f"/>
+    <circle cx="40" cy="70" r="2" fill="#f57f17"/>
+    <!-- Flagpole -->
+    <line x1="64" y1="20" x2="64" y2="45" stroke="#888" stroke-width="1.5"/>
+    <rect x="64" y="20" width="8" height="6" rx="1" fill="#e53935"/>
+  </svg>`,
+
+  factory:`<svg viewBox="0 0 70 80" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="40" width="62" height="38" rx="2" fill="#78909c"/>
+    <polygon points="66,40 70,45 70,78 66,78" fill="#546e7a" opacity=".8"/>
+    <rect x="8" y="46" width="15" height="13" rx="1" fill="#87CEEB" opacity=".75"/>
+    <rect x="28" y="46" width="15" height="13" rx="1" fill="#87CEEB" opacity=".75"/>
+    <rect x="48" y="46" width="14" height="13" rx="1" fill="#87CEEB" opacity=".75"/>
+    <!-- Chimneys -->
+    <rect x="10" y="24" width="10" height="20" rx="2" fill="#546e7a"/>
+    <rect x="30" y="15" width="10" height="28" rx="2" fill="#546e7a"/>
+    <rect x="52" y="20" width="10" height="23" rx="2" fill="#546e7a"/>
+    <!-- Chimney caps -->
+    <ellipse cx="15" cy="23" rx="7" ry="3.5" fill="#cfd8dc" opacity=".7"/>
+    <ellipse cx="35" cy="14" rx="7" ry="3.5" fill="#cfd8dc" opacity=".65"/>
+    <ellipse cx="57" cy="19" rx="7" ry="3.5" fill="#cfd8dc" opacity=".68"/>
+    <!-- Smoke puffs animated -->
+    <circle class="smoke-puff" cx="15" cy="20" r="5" fill="#b0bec5" opacity=".5" style="animation-delay:0s"/>
+    <circle class="smoke-puff" cx="35" cy="11" r="5" fill="#b0bec5" opacity=".45" style="animation-delay:1s"/>
+    <circle class="smoke-puff" cx="57" cy="16" r="5" fill="#b0bec5" opacity=".48" style="animation-delay:.5s"/>
+    <!-- Door -->
+    <rect x="24" y="60" width="22" height="18" rx="1" fill="#37474f"/>
+    <rect x="30" y="62" width="10" height="16" rx="1" fill="#4a6070"/>
+  </svg>`,
+
+  stadium:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="50" rx="38" ry="18" fill="#2e7d32"/>
+    <ellipse cx="40" cy="46" rx="38" ry="18" fill="#455a50"/>
+    <ellipse cx="40" cy="44" rx="36" ry="17" fill="#43a047"/>
+    <ellipse cx="40" cy="44" rx="26" ry="12" fill="#388e3c"/>
+    <ellipse cx="40" cy="44" rx="16" ry="7" fill="#2e7d32"/>
+    <line x1="40" y1="28" x2="40" y2="60" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+    <ellipse cx="40" cy="44" rx="26" ry="1.5" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+    <!-- Stands with crowd color -->
+    <path d="M4,46 Q4,24 40,24 Q76,24 76,46" stroke="#ef6c00" stroke-width="9" fill="none" opacity=".8"/>
+    <path d="M8,48 Q8,28 40,28 Q72,28 72,48" stroke="#c62828" stroke-width="6" fill="none" opacity=".7"/>
+    <path d="M12,49 Q12,32 40,32 Q68,32 68,49" stroke="#ffd600" stroke-width="3" fill="none" opacity=".6"/>
+  </svg>`,
+
+  /* NATURE */
+  tree:`<svg viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg">
+    <rect x="26" y="54" width="8" height="24" rx="2" fill="#6d4c41"/>
+    <!-- 3D trunk side -->
+    <polygon points="34,54 38,57 38,78 34,78" fill="#5d4037" opacity=".7"/>
+    <circle cx="30" cy="34" r="22" fill="#2d8a3e"/>
+    <circle cx="20" cy="43" r="15" fill="#388e3c"/>
+    <circle cx="40" cy="43" r="15" fill="#388e3c"/>
+    <circle cx="30" cy="22" r="14" fill="#4caf50"/>
+    <circle cx="30" cy="30" r="9" fill="#66bb6a" opacity=".6"/>
+    <!-- Highlight -->
+    <circle cx="26" cy="26" r="5" fill="rgba(255,255,255,.15)"/>
+  </svg>`,
+
+  park:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="48" width="76" height="20" rx="3" fill="#4caf50"/>
+    <rect x="2" y="48" width="76" height="5" rx="2" fill="#66bb6a"/>
+    <!-- Path -->
+    <path d="M40,48 Q40,35 40,20" stroke="#d4c4a8" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <!-- Left tree -->
+    <rect x="12" y="38" width="6" height="14" rx="1" fill="#6d4c41"/>
+    <circle cx="15" cy="28" r="14" fill="#2d8a3e"/>
+    <circle cx="10" cy="35" r="10" fill="#388e3c"/>
+    <circle cx="15" cy="20" r="10" fill="#4caf50"/>
+    <!-- Right tree -->
+    <rect x="58" y="38" width="6" height="14" rx="1" fill="#6d4c41"/>
+    <circle cx="61" cy="28" r="13" fill="#2d8a3e"/>
+    <circle cx="66" cy="35" r="9" fill="#388e3c"/>
+    <circle cx="61" cy="20" r="9" fill="#4caf50"/>
+    <!-- Bench -->
+    <rect x="32" y="44" width="16" height="3" rx="1" fill="#8d6e63"/>
+    <rect x="34" y="47" width="2" height="5" rx="1" fill="#795548"/>
+    <rect x="44" y="47" width="2" height="5" rx="1" fill="#795548"/>
+    <!-- Fountain -->
+    <circle cx="40" cy="36" r="6" fill="#42a5f5" opacity=".7"/>
+    <circle cx="40" cy="36" r="3" fill="#64b5f6"/>
+    <line x1="40" y1="36" x2="40" y2="28" stroke="#90caf9" stroke-width="1.5" class="fountain-arc"/>
+  </svg>`,
+
+  lake:`<svg viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="40" cy="45" rx="38" ry="14" fill="#1565c0"/>
+    <ellipse cx="40" cy="42" rx="38" ry="14" fill="#1976d2"/>
+    <ellipse cx="40" cy="40" rx="38" ry="14" fill="#42a5f5"/>
+    <path d="M4,40 Q16,33 28,40 Q40,47 52,40 Q64,33 76,40" stroke="#90caf9" stroke-width="2.5" fill="none"/>
+    <path d="M4,46 Q16,39 28,46 Q40,53 52,46 Q64,39 76,46" stroke="#90caf9" stroke-width="1.8" fill="none" opacity=".6"/>
+    <ellipse cx="32" cy="40" rx="8" ry="4" fill="rgba(255,255,255,.2)"/>
+    <ellipse cx="55" cy="38" rx="6" ry="3" fill="rgba(255,255,255,.15)"/>
+    <!-- Duck -->
+    <ellipse cx="22" cy="38" rx="5" ry="3" fill="#fff"/>
+    <circle cx="26" cy="37" r="3" fill="#fff"/>
+    <ellipse cx="27.5" cy="37" rx="2" ry="1" fill="#ff9800"/>
+  </svg>`,
+
+  mountain:`<svg viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="40,4 6,68 74,68" fill="#78909c"/>
+    <polygon points="40,4 6,68 20,68" fill="#607d8b"/>
+    <polygon points="40,4 28,25 52,25" fill="#eceff1"/>
+    <polygon points="40,4 28,25 35,25" fill="rgba(255,255,255,.5)"/>
+    <polygon points="22,30 4,68 40,68" fill="#90a4ae"/>
+    <polygon points="58,30 76,68 40,68" fill="#90a4ae"/>
+    <polygon points="22,30 4,68 16,68" fill="#607d8b"/>
+  </svg>`,
+
+  /* ROADS & PATHS */
+  road:`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <!-- Road surface -->
+    <rect x="0" y="0" width="80" height="80" fill="#5a5a6a"/>
+    <!-- Sidewalks -->
+    <rect x="0" y="0" width="14" height="80" fill="#d4c4a8"/>
+    <rect x="66" y="0" width="14" height="80" fill="#d4c4a8"/>
+    <rect x="0" y="0" width="80" height="14" fill="#d4c4a8"/>
+    <rect x="0" y="66" width="80" height="14" fill="#d4c4a8"/>
+    <!-- Road -->
+    <rect x="14" y="14" width="52" height="52" fill="#4a4a5a"/>
+    <!-- Center lines -->
+    <line x1="40" y1="14" x2="40" y2="66" stroke="#ffd700" stroke-width="2" stroke-dasharray="10,8"/>
+    <line x1="14" y1="40" x2="66" y2="40" stroke="#ffd700" stroke-width="2" stroke-dasharray="10,8"/>
+    <!-- Zebra crossing hints -->
+    <rect x="32" y="14" width="16" height="4" fill="rgba(255,255,255,.3)"/>
+    <rect x="32" y="62" width="16" height="4" fill="rgba(255,255,255,.3)"/>
+    <rect x="14" y="32" width="4" height="16" fill="rgba(255,255,255,.3)"/>
+    <rect x="62" y="32" width="4" height="16" fill="rgba(255,255,255,.3)"/>
+  </svg>`,
+
+  footpath:`<svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="5" width="70" height="20" rx="3" fill="#d4c4a8"/>
+    <rect x="0" y="5" width="70" height="3" rx="2" fill="#c5b49a"/>
+    <!-- Paving stones -->
+    <line x1="14" y1="5" x2="14" y2="25" stroke="#b8a888" stroke-width="1"/>
+    <line x1="28" y1="5" x2="28" y2="25" stroke="#b8a888" stroke-width="1"/>
+    <line x1="42" y1="5" x2="42" y2="25" stroke="#b8a888" stroke-width="1"/>
+    <line x1="56" y1="5" x2="56" y2="25" stroke="#b8a888" stroke-width="1"/>
+    <line x1="0" y1="15" x2="70" y2="15" stroke="#b8a888" stroke-width="1"/>
+    <!-- Grass edges -->
+    <rect x="0" y="0" width="70" height="5" rx="1" fill="#5ab840"/>
+    <rect x="0" y="25" width="70" height="5" rx="1" fill="#5ab840"/>
+  </svg>`,
+
+  streetlight:`<svg viewBox="0 0 30 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="13" y="20" width="4" height="48" rx="2" fill="#757575"/>
+    <rect x="8" y="64" width="14" height="4" rx="2" fill="#616161"/>
+    <path d="M15,20 Q15,8 24,8" stroke="#757575" stroke-width="3.5" fill="none"/>
+    <ellipse cx="24" cy="8" rx="6" ry="4" fill="#ffd700" class="building-glow"/>
+    <ellipse cx="24" cy="8" rx="4" ry="2.5" fill="#fff9c4"/>
+  </svg>`,
+
+  trafficlight:`<svg viewBox="0 0 24 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="28" width="8" height="40" rx="1" fill="#757575"/>
+    <rect x="5" y="8" width="14" height="28" rx="3" fill="#333"/>
+    <circle cx="12" cy="14" r="4" fill="#f44336"/>
+    <circle cx="12" cy="22" r="4" fill="#ff9800"/>
+    <circle cx="12" cy="30" r="4" fill="#4caf50"/>
+    <circle cx="12" cy="14" r="2.5" fill="#ffcdd2" opacity=".5"/>
+  </svg>`,
+
+  /* SHOPS & VENDORS */
+  shop:`<svg viewBox="0 0 70 70" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="28" width="62" height="42" rx="2" fill="#fff3e0"/>
+    <polygon points="66,28 70,32 70,70 66,70" fill="#ffe0b2" opacity=".7"/>
+    <!-- Awning -->
+    <path d="M4,28 L4,20 L66,20 L66,28 Z" fill="#f44336"/>
+    <path d="M4,20 Q15,26 26,20 Q37,26 48,20 Q59,26 66,20" fill="#d32f2f"/>
+    <polygon points="66,20 70,22 70,28 66,28" fill="#c62828"/>
+    <!-- Sign -->
+    <rect x="15" y="22" width="40" height="8" rx="1" fill="#fff" opacity=".85" class="shop-sign"/>
+    <text x="35" y="28.5" text-anchor="middle" font-size="5" fill="#e53935" font-weight="bold" font-family="sans-serif" class="shop-sign">OPEN</text>
+    <!-- Window display -->
+    <rect x="8" y="34" width="24" height="20" rx="1" fill="#87CEEB" opacity=".8"/>
+    <rect x="36" y="34" width="24" height="20" rx="1" fill="#87CEEB" opacity=".8"/>
+    <!-- Products in window -->
+    <rect x="12" y="38" width="6" height="12" rx="1" fill="#ff8f00" opacity=".8"/>
+    <rect x="20" y="40" width="6" height="10" rx="1" fill="#43a047" opacity=".8"/>
+    <rect x="40" y="38" width="6" height="12" rx="1" fill="#1e88e5" opacity=".8"/>
+    <rect x="48" y="40" width="6" height="10" rx="1" fill="#e53935" opacity=".8"/>
+    <!-- Door -->
+    <rect x="26" y="54" width="18" height="16" rx="1" fill="#ffb74d"/>
+    <rect x="30" y="56" width="14" height="14" rx="1" fill="#ffe0b2"/>
+    <circle cx="38" cy="63" r="2" fill="#ef6c00"/>
+  </svg>`,
+
+  cafe:`<svg viewBox="0 0 65 65" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="26" width="57" height="38" rx="2" fill="#efebe9"/>
+    <polygon points="61,26 65,30 65,64 61,64" fill="#d7ccc8" opacity=".7"/>
+    <path d="M4,26 L4,18 L61,18 L61,26 Z" fill="#795548"/>
+    <path d="M4,18 Q13,23 22,18 Q31,23 40,18 Q49,23 58,18 Q60,21 61,22" fill="#6d4c41"/>
+    <text x="32" y="24" text-anchor="middle" font-size="4.5" fill="#fff" font-weight="bold" font-family="sans-serif">CAFÉ</text>
+    <rect x="8" y="32" width="20" height="16" rx="1" fill="#87CEEB" opacity=".8"/>
+    <rect x="33" y="32" width="20" height="16" rx="1" fill="#87CEEB" opacity=".8"/>
+    <!-- Coffee cup -->
+    <rect x="13" y="36" width="10" height="8" rx="1" fill="#fff"/>
+    <path d="M23,39 Q28,39 28,43 Q28,47 23,47" stroke="#795548" stroke-width="1.5" fill="none"/>
+    <rect x="25" y="55" width="14" height="8" rx="1" fill="#a1887f"/>
+    <rect x="22" y="50" width="20" height="7" rx="1" fill="#6d4c41"/>
+  </svg>`,
+
+  vendor:`<svg viewBox="0 0 65 65" xmlns="http://www.w3.org/2000/svg">
+    <!-- Cart base -->
+    <rect x="12" y="34" width="40" height="22" rx="2" fill="#ff8f00"/>
+    <polygon points="52,34 58,38 58,56 52,56" fill="#e65100" opacity=".8"/>
+    <!-- Umbrella -->
+    <line x1="32" y1="10" x2="32" y2="45" stroke="#555" stroke-width="2.5"/>
+    <path d="M6,22 Q32,6 58,22 Z" fill="#f44336"/>
+    <path d="M6,22 Q19,14 32,22" fill="#e53935" opacity=".4"/>
+    <!-- Products -->
+    <rect x="16" y="36" width="8" height="10" rx="1" fill="#ffee58"/>
+    <rect x="26" y="37" width="7" height="9" rx="1" fill="#ef9a9a"/>
+    <rect x="35" y="36" width="8" height="10" rx="1" fill="#a5d6a7"/>
+    <rect x="45" y="38" width="5" height="8" rx="1" fill="#90caf9"/>
+    <!-- Wheels -->
+    <circle cx="20" cy="58" r="5" fill="#555"/>
+    <circle cx="20" cy="58" r="2.5" fill="#888"/>
+    <circle cx="48" cy="58" r="5" fill="#555"/>
+    <circle cx="48" cy="58" r="2.5" fill="#888"/>
+  </svg>`,
+
+  market:`<svg viewBox="0 0 80 65" xmlns="http://www.w3.org/2000/svg">
+    <!-- Stalls -->
+    <rect x="2" y="30" width="76" height="30" rx="2" fill="#fff8e1"/>
+    <!-- 3 stall awnings -->
+    <rect x="2" y="18" width="24" height="16" rx="1" fill="#e53935"/>
+    <path d="M2,18 Q14,24 26,18" fill="#c62828"/>
+    <rect x="28" y="18" width="24" height="16" rx="1" fill="#43a047"/>
+    <path d="M28,18 Q40,24 52,18" fill="#2e7d32"/>
+    <rect x="54" y="18" width="24" height="16" rx="1" fill="#1976d2"/>
+    <path d="M54,18 Q66,24 78,18" fill="#1565c0"/>
+    <!-- Produce -->
+    <circle cx="10" cy="46" r="4" fill="#f44336" opacity=".9"/>
+    <circle cx="18" cy="46" r="4" fill="#ff9800" opacity=".9"/>
+    <circle cx="38" cy="46" r="4" fill="#4caf50" opacity=".9"/>
+    <circle cx="46" cy="46" r="4" fill="#ffeb3b" opacity=".9"/>
+    <circle cx="64" cy="46" r="4" fill="#9c27b0" opacity=".9"/>
+    <circle cx="72" cy="46" r="4" fill="#2196f3" opacity=".9"/>
+  </svg>`,
+
+  /* PEOPLE */
+  human_man:`<svg viewBox="0 0 30 55" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="15" cy="8" r="7" fill="#ffcc80"/>
+    <!-- Hair -->
+    <path d="M8,8 Q8,2 15,2 Q22,2 22,8" fill="#4a3728"/>
+    <!-- Body -->
+    <rect x="9" y="16" width="12" height="18" rx="3" fill="#1565c0"/>
+    <!-- Arms -->
+    <rect x="3" y="17" width="6" height="14" rx="3" fill="#1565c0"/>
+    <rect x="21" y="17" width="6" height="14" rx="3" fill="#1565c0"/>
+    <!-- Hands -->
+    <circle cx="6" cy="31" r="3" fill="#ffcc80"/>
+    <circle cx="24" cy="31" r="3" fill="#ffcc80"/>
+    <!-- Legs -->
+    <rect x="9" y="32" width="5" height="18" rx="2" fill="#263238"/>
+    <rect x="16" y="32" width="5" height="18" rx="2" fill="#263238"/>
+    <!-- Shoes -->
+    <ellipse cx="11" cy="50" rx="5" ry="3" fill="#212121"/>
+    <ellipse cx="19" cy="50" rx="5" ry="3" fill="#212121"/>
+    <!-- Face -->
+    <circle cx="12" cy="8" r="1.5" fill="#5d4037"/>
+    <circle cx="18" cy="8" r="1.5" fill="#5d4037"/>
+    <path d="M12,12 Q15,14 18,12" stroke="#a1887f" stroke-width="1" fill="none"/>
+  </svg>`,
+
+  human_woman:`<svg viewBox="0 0 30 55" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="15" cy="8" r="7" fill="#ffcc80"/>
+    <!-- Hair long -->
+    <path d="M8,8 Q8,2 15,2 Q22,2 22,8 Q22,20 20,22 Q18,24 15,24 Q12,24 10,22 Q8,20 8,8" fill="#c8a04a"/>
+    <!-- Dress body -->
+    <path d="M9,16 L21,16 L25,34 L5,34 Z" fill="#e91e63"/>
+    <!-- Arms -->
+    <rect x="3" y="17" width="5" height="13" rx="2.5" fill="#ffcc80"/>
+    <rect x="22" y="17" width="5" height="13" rx="2.5" fill="#ffcc80"/>
+    <!-- Hands with bag -->
+    <circle cx="5" cy="30" r="3" fill="#ffcc80"/>
+    <rect x="22" y="29" width="8" height="7" rx="2" fill="#c2185b"/>
+    <!-- Legs -->
+    <rect x="9" y="34" width="5" height="16" rx="2" fill="#fce4ec"/>
+    <rect x="16" y="34" width="5" height="16" rx="2" fill="#fce4ec"/>
+    <!-- Shoes -->
+    <ellipse cx="11" cy="50" rx="5" ry="3" fill="#880e4f"/>
+    <ellipse cx="19" cy="50" rx="5" ry="3" fill="#880e4f"/>
+    <!-- Face -->
+    <circle cx="12" cy="7" r="1.5" fill="#5d4037"/>
+    <circle cx="18" cy="7" r="1.5" fill="#5d4037"/>
+    <path d="M12,11 Q15,13 18,11" stroke="#e91e63" stroke-width="1.2" fill="none"/>
+  </svg>`,
+
+  human_child:`<svg viewBox="0 0 26 48" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="13" cy="8" r="7" fill="#ffcc80"/>
+    <path d="M6,7 Q6,1 13,1 Q20,1 20,7" fill="#f57f17"/>
+    <rect x="7" y="15" width="12" height="16" rx="3" fill="#66bb6a"/>
+    <rect x="2" y="16" width="5" height="12" rx="2.5" fill="#66bb6a"/>
+    <rect x="19" y="16" width="5" height="12" rx="2.5" fill="#66bb6a"/>
+    <circle cx="4.5" cy="28" r="2.5" fill="#ffcc80"/>
+    <circle cx="21.5" cy="28" r="2.5" fill="#ffcc80"/>
+    <rect x="7" y="30" width="4" height="14" rx="2" fill="#1565c0"/>
+    <rect x="15" y="30" width="4" height="14" rx="2" fill="#1565c0"/>
+    <ellipse cx="9" cy="44" rx="4" ry="2.5" fill="#212121"/>
+    <ellipse cx="17" cy="44" rx="4" ry="2.5" fill="#212121"/>
+    <circle cx="10" cy="7" r="1.2" fill="#5d4037"/>
+    <circle cx="16" cy="7" r="1.2" fill="#5d4037"/>
+    <path d="M10,11 Q13,13 16,11" stroke="#a1887f" stroke-width="1" fill="none"/>
+  </svg>`,
+
+  human_elder:`<svg viewBox="0 0 30 55" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="15" cy="8" r="7" fill="#f5c5a0"/>
+    <path d="M8,7 Q8,2 15,2 Q22,2 22,7" fill="#bdbdbd"/>
+    <rect x="9" y="16" width="12" height="18" rx="3" fill="#78909c"/>
+    <rect x="3" y="17" width="5" height="14" rx="2.5" fill="#78909c"/>
+    <rect x="22" y="17" width="5" height="14" rx="2.5" fill="#78909c"/>
+    <circle cx="5.5" cy="31" r="3" fill="#f5c5a0"/>
+    <!-- Cane -->
+    <line x1="24" y1="31" x2="26" y2="52" stroke="#6d4c41" stroke-width="2.5"/>
+    <ellipse cx="26" cy="52" rx="3" ry="1.5" fill="#5d4037"/>
+    <rect x="9" y="32" width="5" height="18" rx="2" fill="#546e7a"/>
+    <rect x="16" y="32" width="5" height="18" rx="2" fill="#546e7a"/>
+    <ellipse cx="11" cy="50" rx="5" ry="3" fill="#37474f"/>
+    <ellipse cx="19" cy="50" rx="5" ry="3" fill="#37474f"/>
+    <circle cx="12" cy="8" r="1.5" fill="#5d4037"/>
+    <circle cx="18" cy="8" r="1.5" fill="#5d4037"/>
+    <path d="M12,12 Q15,14 18,12" stroke="#a1887f" stroke-width="1" fill="none"/>
+  </svg>`,
+
+  police:`<svg viewBox="0 0 30 56" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="15" cy="8" r="7" fill="#ffcc80"/>
+    <!-- Cap -->
+    <path d="M7,7 L23,7 L23,4 Q15,-1 7,4 Z" fill="#1a237e"/>
+    <line x1="7" y1="7" x2="23" y2="7" stroke="#0d47a1" stroke-width="2"/>
+    <rect x="9" y="16" width="12" height="18" rx="3" fill="#1a237e"/>
+    <!-- Badge -->
+    <polygon points="15,19 17,22 15,25 13,22" fill="#ffd700"/>
+    <rect x="3" y="17" width="5" height="14" rx="2.5" fill="#1a237e"/>
+    <rect x="22" y="17" width="5" height="14" rx="2.5" fill="#1a237e"/>
+    <circle cx="5.5" cy="31" r="3" fill="#ffcc80"/>
+    <circle cx="24.5" cy="31" r="3" fill="#ffcc80"/>
+    <rect x="9" y="32" width="5" height="19" rx="2" fill="#0d47a1"/>
+    <rect x="16" y="32" width="5" height="19" rx="2" fill="#0d47a1"/>
+    <ellipse cx="11" cy="51" rx="5" ry="3" fill="#0d1f5c"/>
+    <ellipse cx="19" cy="51" rx="5" ry="3" fill="#0d1f5c"/>
+    <circle cx="12" cy="8" r="1.5" fill="#5d4037"/>
+    <circle cx="18" cy="8" r="1.5" fill="#5d4037"/>
+  </svg>`,
+
+  /* VEHICLES */
+  car:`<svg viewBox="0 0 75 45" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="26" width="65" height="16" rx="4" fill="#e53935"/>
+    <polygon points="66,26 70,26 70,28 66,28" fill="#c62828"/>
+    <path d="M12,26 L18,12 L57,12 L63,26 Z" fill="#c62828"/>
+    <rect x="20" y="14" width="15" height="11" rx="2" fill="#87CEEB" opacity=".9"/>
+    <rect x="40" y="14" width="15" height="11" rx="2" fill="#87CEEB" opacity=".9"/>
+    <line x1="27.5" y1="14" x2="27.5" y2="25" stroke="rgba(255,255,255,.5)" stroke-width="1"/>
+    <line x1="47.5" y1="14" x2="47.5" y2="25" stroke="rgba(255,255,255,.5)" stroke-width="1"/>
+    <circle cx="19" cy="42" r="7" fill="#212121"/><circle cx="19" cy="42" r="4" fill="#757575"/>
+    <circle cx="56" cy="42" r="7" fill="#212121"/><circle cx="56" cy="42" r="4" fill="#757575"/>
+    <rect x="5" y="30" width="6" height="5" rx="1" fill="#ffd700" opacity=".9"/>
+    <rect x="64" y="30" width="6" height="5" rx="1" fill="#ff5252" opacity=".9"/>
+    <rect x="5" y="26" width="6" height="4" rx="1" fill="#f5f5f5" opacity=".6"/>
+  </svg>`,
+
+  bus:`<svg viewBox="0 0 90 52" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="8" width="82" height="36" rx="4" fill="#1565c0"/>
+    <polygon points="86,8 90,12 90,44 86,44" fill="#0d47a1" opacity=".8"/>
+    <!-- Windows -->
+    <rect x="8" y="13" width="12" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="24" y="13" width="12" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="40" y="13" width="12" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="56" y="13" width="12" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <rect x="72" y="13" width="12" height="10" rx="1" fill="#87CEEB" opacity=".9"/>
+    <!-- Destination sign -->
+    <rect x="8" y="8" width="40" height="6" rx="1" fill="#ffd700"/>
+    <text x="28" y="13" text-anchor="middle" font-size="4.5" fill="#333" font-family="sans-serif">CITY CENTER</text>
+    <!-- Door -->
+    <rect x="68" y="22" width="14" height="14" rx="1" fill="#1976d2"/>
+    <!-- Wheels -->
+    <circle cx="18" cy="48" r="6" fill="#212121"/><circle cx="18" cy="48" r="3" fill="#616161"/>
+    <circle cx="48" cy="48" r="6" fill="#212121"/><circle cx="48" cy="48" r="3" fill="#616161"/>
+    <circle cx="72" cy="48" r="6" fill="#212121"/><circle cx="72" cy="48" r="3" fill="#616161"/>
+    <rect x="4" y="28" width="6" height="5" rx="1" fill="#ffd700" opacity=".9"/>
+    <rect x="80" y="28" width="6" height="5" rx="1" fill="#ff5252" opacity=".9"/>
+  </svg>`,
+
+  bicycle:`<svg viewBox="0 0 55 40" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="30" r="9" fill="none" stroke="#1565c0" stroke-width="3"/>
+    <circle cx="43" cy="30" r="9" fill="none" stroke="#1565c0" stroke-width="3"/>
+    <circle cx="12" cy="30" r="3" fill="#1565c0"/>
+    <circle cx="43" cy="30" r="3" fill="#1565c0"/>
+    <line x1="12" y1="30" x2="27" y2="14" stroke="#555" stroke-width="2.5"/>
+    <line x1="43" y1="30" x2="27" y2="14" stroke="#555" stroke-width="2.5"/>
+    <line x1="27" y1="14" x2="27" y2="22" stroke="#555" stroke-width="2.5"/>
+    <line x1="22" y1="22" x2="32" y2="22" stroke="#555" stroke-width="2.5"/>
+    <line x1="27" y1="14" x2="22" y2="10" stroke="#555" stroke-width="2"/>
+    <line x1="22" y1="10" x2="18" y2="12" stroke="#555" stroke-width="2"/>
+    <line x1="22" y1="10" x2="22" y2="8" stroke="#555" stroke-width="2"/>
+    <!-- Rider silhouette -->
+    <circle cx="22" cy="6" r="4" fill="#ff8f00"/>
+    <path d="M22,10 Q22,18 27,22" stroke="#ff8f00" stroke-width="2" fill="none"/>
+  </svg>`,
+
+  truck:`<svg viewBox="0 0 90 52" xmlns="http://www.w3.org/2000/svg">
+    <rect x="30" y="10" width="56" height="34" rx="2" fill="#607d8b"/>
+    <polygon points="86,10 90,14 90,44 86,44" fill="#455a64" opacity=".8"/>
+    <rect x="4" y="18" width="30" height="26" rx="3" fill="#78909c"/>
+    <rect x="8" y="21" width="18" height="13" rx="1" fill="#87CEEB" opacity=".85"/>
+    <rect x="4" y="28" width="6" height="5" rx="1" fill="#ffd700" opacity=".9"/>
+    <rect x="80" y="28" width="6" height="5" rx="1" fill="#ff5252" opacity=".9"/>
+    <!-- Cargo door -->
+    <line x1="30" y1="14" x2="86" y2="14" stroke="#546e7a" stroke-width="2"/>
+    <line x1="30" y1="22" x2="86" y2="22" stroke="#546e7a" stroke-width="1.5" opacity=".5"/>
+    <line x1="30" y1="30" x2="86" y2="30" stroke="#546e7a" stroke-width="1.5" opacity=".5"/>
+    <line x1="30" y1="38" x2="86" y2="38" stroke="#546e7a" stroke-width="1.5" opacity=".5"/>
+    <circle cx="18" cy="48" r="6" fill="#212121"/><circle cx="18" cy="48" r="3" fill="#616161"/>
+    <circle cx="50" cy="48" r="6" fill="#212121"/><circle cx="50" cy="48" r="3" fill="#616161"/>
+    <circle cx="70" cy="48" r="6" fill="#212121"/><circle cx="70" cy="48" r="3" fill="#616161"/>
+  </svg>`,
+
+  ambulance:`<svg viewBox="0 0 80 48" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="10" width="72" height="30" rx="3" fill="#fff"/>
+    <polygon points="76,10 80,14 80,40 76,40" fill="#f5f5f5" opacity=".8"/>
+    <rect x="4" y="10" width="30" height="30" rx="3" fill="#e0e0e0"/>
+    <rect x="8" y="14" width="18" height="12" rx="1" fill="#87CEEB" opacity=".85"/>
+    <rect x="36" y="14" width="12" height="10" rx="1" fill="#ef9a9a" opacity=".7"/>
+    <!-- Cross -->
+    <rect x="50" y="14" width="18" height="20" rx="1" fill="#ffebee"/>
+    <rect x="56" y="16" width="6" height="16" rx="1" fill="#f44336"/>
+    <rect x="50" y="20" width="18" height="8" rx="1" fill="#f44336"/>
+    <!-- Lights -->
+    <rect x="4" y="10" width="10" height="5" rx="1" fill="#f44336"/>
+    <rect x="18" y="10" width="10" height="5" rx="1" fill="#2196f3"/>
+    <rect x="4" y="30" width="6" height="5" rx="1" fill="#ffd700" opacity=".9"/>
+    <rect x="70" y="30" width="6" height="5" rx="1" fill="#ff5252" opacity=".9"/>
+    <circle cx="18" cy="44" r="6" fill="#212121"/><circle cx="18" cy="44" r="3" fill="#616161"/>
+    <circle cx="60" cy="44" r="6" fill="#212121"/><circle cx="60" cy="44" r="3" fill="#616161"/>
+  </svg>`,
+
+  motorcycle:`<svg viewBox="0 0 55 38" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="10" cy="28" r="9" fill="none" stroke="#212121" stroke-width="3"/>
+    <circle cx="45" cy="28" r="9" fill="none" stroke="#212121" stroke-width="3"/>
+    <circle cx="10" cy="28" r="3" fill="#212121"/>
+    <circle cx="45" cy="28" r="3" fill="#212121"/>
+    <path d="M10,28 L22,16 L38,16 L45,28" stroke="#e53935" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <rect x="18" y="10" width="20" height="8" rx="3" fill="#c62828"/>
+    <rect x="30" y="8" width="8" height="5" rx="2" fill="#87CEEB" opacity=".8"/>
+    <ellipse cx="10" cy="28" r="2" fill="#757575"/>
+    <ellipse cx="45" cy="28" r="2" fill="#757575"/>
+    <!-- Rider -->
+    <circle cx="26" cy="10" r="5" fill="#ff8f00"/>
+    <path d="M26,15 L26,22 L32,22" stroke="#ff8f00" stroke-width="2.5" fill="none"/>
+  </svg>`,
+
+  /* ANIMALS */
+  dog:`<svg viewBox="0 0 55 40" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="28" cy="28" rx="18" ry="12" fill="#d7a66a"/>
+    <ellipse cx="28" cy="28" rx="18" ry="12" fill="url(#dog-g)"/>
+    <defs><linearGradient id="dog-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8c08a"/><stop offset="100%" stop-color="#c8904a"/></linearGradient></defs>
+    <!-- Head -->
+    <circle cx="44" cy="22" r="10" fill="#d7a66a"/>
+    <!-- Ears -->
+    <ellipse cx="39" cy="14" rx="5" ry="7" fill="#c8904a" transform="rotate(-15 39 14)"/>
+    <ellipse cx="50" cy="14" rx="5" ry="7" fill="#c8904a" transform="rotate(15 50 14)"/>
+    <!-- Snout -->
+    <ellipse cx="51" cy="26" rx="6" ry="4" fill="#c07840"/>
+    <circle cx="51" cy="24" r="2.5" fill="#5d4037"/>
+    <!-- Eye -->
+    <circle cx="44" cy="20" r="2" fill="#3e2723"/>
+    <circle cx="44.8" cy="19.2" r=".8" fill="#fff"/>
+    <!-- Tail -->
+    <path d="M10,20 Q4,8 8,4" stroke="#c8904a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Legs -->
+    <rect x="16" y="36" width="5" height="8" rx="2" fill="#c8904a"/>
+    <rect x="24" y="36" width="5" height="8" rx="2" fill="#c8904a"/>
+    <rect x="34" y="36" width="5" height="8" rx="2" fill="#c8904a"/>
+    <rect x="42" y="36" width="5" height="8" rx="2" fill="#c8904a"/>
+  </svg>`,
+
+  cat:`<svg viewBox="0 0 50 42" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="25" cy="30" rx="16" ry="10" fill="#9e9e9e"/>
+    <!-- Head -->
+    <circle cx="36" cy="22" r="10" fill="#9e9e9e"/>
+    <!-- Ears -->
+    <polygon points="30,14 27,6 34,12" fill="#757575"/>
+    <polygon points="43,14 46,6 40,12" fill="#757575"/>
+    <polygon points="30,14 28,8 33,13" fill="#f48fb1"/>
+    <polygon points="43,14 45,8 41,13" fill="#f48fb1"/>
+    <!-- Face -->
+    <circle cx="32" cy="22" r="1.5" fill="#1a237e"/>
+    <circle cx="40" cy="22" r="1.5" fill="#1a237e"/>
+    <circle cx="32.6" cy="21.4" r=".6" fill="#fff"/>
+    <circle cx="40.6" cy="21.4" r=".6" fill="#fff"/>
+    <ellipse cx="36" cy="25" rx="3" ry="2" fill="#ef9a9a"/>
+    <!-- Whiskers -->
+    <line x1="39" y1="25" x2="50" y2="22" stroke="#bdbdbd" stroke-width="1"/>
+    <line x1="39" y1="25" x2="50" y2="25" stroke="#bdbdbd" stroke-width="1"/>
+    <line x1="33" y1="25" x2="22" y2="22" stroke="#bdbdbd" stroke-width="1"/>
+    <line x1="33" y1="25" x2="22" y2="25" stroke="#bdbdbd" stroke-width="1"/>
+    <!-- Tail -->
+    <path d="M9,26 Q2,18 5,10" stroke="#9e9e9e" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Legs -->
+    <rect x="14" y="36" width="4" height="8" rx="2" fill="#757575"/>
+    <rect x="20" y="36" width="4" height="8" rx="2" fill="#757575"/>
+    <rect x="28" y="36" width="4" height="8" rx="2" fill="#757575"/>
+    <rect x="34" y="36" width="4" height="8" rx="2" fill="#757575"/>
+  </svg>`,
+
+  bird:`<svg viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="20" cy="18" rx="12" ry="8" fill="#64b5f6"/>
+    <circle cx="30" cy="14" r="7" fill="#64b5f6"/>
+    <!-- Wing -->
+    <path d="M10,18 Q4,10 2,16 Q6,22 10,18" fill="#42a5f5"/>
+    <!-- Eye -->
+    <circle cx="33" cy="13" r="2" fill="#1a237e"/>
+    <circle cx="33.8" cy="12.2" r=".8" fill="#fff"/>
+    <!-- Beak -->
+    <polygon points="37,15 42,16 37,17" fill="#ff8f00"/>
+    <!-- Tail feathers -->
+    <path d="M8,18 Q2,20 0,24" stroke="#42a5f5" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M8,20 Q2,24 1,28" stroke="#64b5f6" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </svg>`,
+
+  horse:`<svg viewBox="0 0 65 48" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="34" cy="32" rx="22" ry="13" fill="#8d6e63"/>
+    <!-- Neck & Head -->
+    <path d="M48,24 Q54,14 58,10 Q62,8 60,14 Q56,20 52,24" fill="#8d6e63"/>
+    <circle cx="56" cy="12" r="8" fill="#8d6e63"/>
+    <!-- Mane -->
+    <path d="M48,24 Q52,16 56,10" stroke="#4e342e" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Ear -->
+    <polygon points="59,6 62,2 62,8" fill="#6d4c41"/>
+    <!-- Eye -->
+    <circle cx="59" cy="12" r="2" fill="#1a1a1a"/>
+    <!-- Snout -->
+    <ellipse cx="61" cy="16" rx="4" ry="3" fill="#a1887f"/>
+    <circle cx="60" cy="15" r="1" fill="#4e342e"/>
+    <!-- Legs -->
+    <rect x="16" y="42" width="5" height="8" rx="2" fill="#6d4c41"/>
+    <rect x="24" y="42" width="5" height="8" rx="2" fill="#6d4c41"/>
+    <rect x="36" y="42" width="5" height="8" rx="2" fill="#6d4c41"/>
+    <rect x="44" y="42" width="5" height="8" rx="2" fill="#6d4c41"/>
+    <!-- Tail -->
+    <path d="M12,30 Q4,26 2,20" stroke="#4e342e" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>`,
+};
+
+/* ══════════════════════════════════════════════════════
+   2. PALETTE DEFINITIONS
+══════════════════════════════════════════════════════ */
+const PALETTE = [
+  // Buildings
+  {type:'house',name:'House',cat:'buildings',pop:4,green:0,road:0,happy:2,desc:'Cozy home for 4 residents',svgKey:'house'},
+  {type:'skyscraper',name:'Skyscraper',cat:'buildings',pop:50,green:0,road:0,happy:5,desc:'High-rise tower, 50 residents',svgKey:'skyscraper'},
+  {type:'apartment',name:'Apartment',cat:'buildings',pop:20,green:0,road:0,happy:3,desc:'Multi-family housing',svgKey:'apartment'},
+  {type:'hospital',name:'Hospital',cat:'buildings',pop:5,green:0,road:0,happy:15,desc:'Medical centre, boosts happiness',svgKey:'hospital'},
+  {type:'school',name:'School',cat:'buildings',pop:8,green:0,road:0,happy:12,desc:'Education for the city',svgKey:'school'},
+  {type:'stadium',name:'Stadium',cat:'buildings',pop:15,green:0,road:0,happy:20,desc:'Entertainment and sports',svgKey:'stadium'},
+  {type:'factory',name:'Factory',cat:'buildings',pop:10,green:-3,road:0,happy:-5,desc:'Industry, -3% greenery',svgKey:'factory'},
+  // Nature
+  {type:'tree',name:'Tree',cat:'nature',pop:0,green:2,road:0,happy:3,desc:'Clean air +2% greenery',svgKey:'tree'},
+  {type:'park',name:'Park',cat:'nature',pop:0,green:5,road:0,happy:10,desc:'Public space +5% greenery',svgKey:'park'},
+  {type:'lake',name:'Lake',cat:'nature',pop:0,green:3,road:0,happy:8,desc:'Scenic water feature',svgKey:'lake'},
+  {type:'mountain',name:'Mountain',cat:'nature',pop:0,green:4,road:0,happy:6,desc:'Natural landmark',svgKey:'mountain'},
+  // Roads & paths
+  {type:'road',name:'Road',cat:'roads',pop:0,green:0,road:1,happy:0,desc:'Vehicle road connection',svgKey:'road'},
+  {type:'footpath',name:'Footpath',cat:'roads',pop:0,green:0,road:0,happy:2,desc:'Pedestrian walkway',svgKey:'footpath'},
+  {type:'streetlight',name:'Street Light',cat:'roads',pop:0,green:0,road:0,happy:1,desc:'Illuminates streets at night',svgKey:'streetlight'},
+  {type:'trafficlight',name:'Traffic Light',cat:'roads',pop:0,green:0,road:0,happy:0,desc:'Controls traffic flow',svgKey:'trafficlight'},
+  // Shops
+  {type:'shop',name:'Shop',cat:'shops',pop:3,green:0,road:0,happy:8,desc:'Retail store, residents love it',svgKey:'shop'},
+  {type:'cafe',name:'Café',cat:'shops',pop:2,green:0,road:0,happy:10,desc:'Coffee shop, high happiness',svgKey:'cafe'},
+  {type:'vendor',name:'Vendor',cat:'shops',pop:1,green:0,road:0,happy:6,desc:'Street food vendor',svgKey:'vendor'},
+  {type:'market',name:'Market',cat:'shops',pop:5,green:0,road:0,happy:12,desc:'Fresh market, community hub',svgKey:'market'},
+  // People
+  {type:'human_man',name:'Man',cat:'people',pop:1,green:0,road:0,happy:0,desc:'Adult male citizen',svgKey:'human_man',anim:'walking'},
+  {type:'human_woman',name:'Woman',cat:'people',pop:1,green:0,road:0,happy:0,desc:'Adult female citizen',svgKey:'human_woman',anim:'shopping'},
+  {type:'human_child',name:'Child',cat:'people',pop:1,green:0,road:0,happy:2,desc:'Child citizen',svgKey:'human_child',anim:'walking'},
+  {type:'human_elder',name:'Elder',cat:'people',pop:1,green:0,road:0,happy:0,desc:'Senior citizen',svgKey:'human_elder',anim:'idle'},
+  {type:'police',name:'Police',cat:'people',pop:0,green:0,road:0,happy:5,desc:'Law enforcement, +5 happiness',svgKey:'police',anim:'idle'},
+  // Vehicles
+  {type:'car',name:'Car',cat:'vehicles',pop:0,green:-1,road:1,happy:0,desc:'Private vehicle',svgKey:'car',anim:'driving'},
+  {type:'bus',name:'Bus',cat:'vehicles',pop:0,green:0,road:1,happy:4,desc:'Public transit, +4 happiness',svgKey:'bus',anim:'bus-route'},
+  {type:'bicycle',name:'Bicycle',cat:'vehicles',pop:0,green:1,road:0,happy:3,desc:'Eco-friendly, +1% green',svgKey:'bicycle',anim:'bike-ride'},
+  {type:'truck',name:'Truck',cat:'vehicles',pop:0,green:-2,road:2,happy:0,desc:'Freight vehicle',svgKey:'truck',anim:'driving'},
+  {type:'ambulance',name:'Ambulance',cat:'vehicles',pop:0,green:0,road:0,happy:8,desc:'Emergency services',svgKey:'ambulance',anim:'driving'},
+  {type:'motorcycle',name:'Motorbike',cat:'vehicles',pop:0,green:-1,road:0,happy:0,desc:'Fast personal vehicle',svgKey:'motorcycle',anim:'driving'},
+  // Animals
+  {type:'dog',name:'Dog',cat:'animals',pop:0,green:0,road:0,happy:5,desc:'Man\'s best friend',svgKey:'dog',anim:'roaming'},
+  {type:'cat',name:'Cat',cat:'animals',pop:0,green:0,road:0,happy:4,desc:'City cat, roams freely',svgKey:'cat',anim:'roaming'},
+  {type:'bird',name:'Bird',cat:'animals',pop:0,green:1,road:0,happy:3,desc:'Flying bird, nature indicator',svgKey:'bird',anim:'bird-fly'},
+  {type:'horse',name:'Horse',cat:'animals',pop:0,green:0,road:0,happy:6,desc:'Majestic animal',svgKey:'horse',anim:'roaming'},
+];
+
+/* ══════════════════════════════════════════════════════
+   3. STATE
+══════════════════════════════════════════════════════ */
+const state = {
+  tod:'morning', items:[], connections:[], nextId:1, nextConnId:1,
+  connMode:'road', connSource:null,
+  snapGrid:true, gridSize:60, zoom:1,
+  tool:'select',
+  stats:{pop:0,green:0,happy:50,roads:0,total:0,conns:0,vehicles:0},
+  history:[], historyMax:30,
+  musicPlaying:false, musicTrack:0,
+  animsEnabled:true, labelsVisible:true, connsVisible:true,
+  cityTime:0 // simulated minutes from midnight
+};
+
+const CONN_COLORS = {road:'#5a5a6a',footpath:'#d4c4a8',power:'#fbbf24',water:'#38bdf8'};
+const CONN_W = {road:8,footpath:6,power:2,water:2};
+const CONN_DASH = {road:'none',footpath:'none',power:'8,4',water:'4,4'};
+const TOD_NAMES = {morning:'Morning — 6:00 AM',afternoon:'Afternoon — 12:30 PM',evening:'Evening — 6:45 PM',night:'Night — 10:00 PM'};
+const TRACKS = [
+  {name:'Morning Birds & City',freq:440},
+  {name:'Afternoon Bustle',freq:528},
+  {name:'Evening Jazz',freq:396},
+  {name:'Night Ambience',freq:333}
+];
+
+const $canvas = $('#cityCanvas');
+const $connSvg = $('#connSvg');
+let AudioCtx = null;
+let musicNodes = {};
+
+/* ══════════════════════════════════════════════════════
+   4. BUILD PALETTE UI
+══════════════════════════════════════════════════════ */
+function buildPalette(filterCat='all', search='') {
+  $('#paletteContainer').empty();
+  const groups = {};
+  PALETTE.forEach(def => {
+    if(filterCat !== 'all' && def.cat !== filterCat) return;
+    if(search && !def.name.toLowerCase().includes(search.toLowerCase())) return;
+    if(!groups[def.cat]) groups[def.cat] = [];
+    groups[def.cat].push(def);
+  });
+  const catLabels = {buildings:'🏢 Buildings',nature:'🌿 Nature',roads:'🛣️ Roads & Paths',shops:'🛍️ Shops',people:'👤 People',vehicles:'🚗 Vehicles',animals:'🐾 Animals'};
+  Object.entries(groups).forEach(([cat, defs]) => {
+    const $sec = $(`<div class="sb-sec"><div class="sec-lbl">${catLabels[cat]||cat}</div><div class="pal-grid" id="pg-${cat}"></div></div>`);
+    defs.forEach(def => {
+      const svgHtml = SVG[def.svgKey] || SVG[def.type] || `<div style="font-size:1.6rem;text-align:center;line-height:38px">?</div>`;
+      const $item = $(`<div class="pal-item" data-type="${def.type}" title="${def.name}: ${def.desc}">
+        <div class="pi-svg">${svgHtml}</div>
+        <div class="pi-name">${def.name}</div>
+        <div class="pi-cat">${def.pop>0?'+'+def.pop+'👥':def.green>0?'+'+def.green+'🌿':def.road>0?'+'+def.road+'🛣':'✨'}</div>
+      </div>`);
+      $sec.find('.pal-grid').append($item);
+    });
+    $('#paletteContainer').append($sec);
+  });
+  initDraggables();
+}
+
+/* ══════════════════════════════════════════════════════
+   5. DRAGGABLE PALETTE
+══════════════════════════════════════════════════════ */
+function initDraggables() {
+  $('.pal-item').draggable({
+    helper:'clone', appendTo:'body', zIndex:9999, revert:'invalid', cursorAt:{left:35,top:35},
+    start(e, ui) {
+      const type = $(this).data('type');
+      const svgHtml = SVG[type] || '';
+      ui.helper.css({width:70,height:70,display:'flex',alignItems:'center',justifyContent:'center',
+        borderRadius:'10px',background:'var(--card)',border:'2px solid var(--accent)',
+        boxShadow:'0 8px 32px rgba(14,165,233,.5)'}).html(svgHtml);
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   6. DROPPABLE CANVAS
+══════════════════════════════════════════════════════ */
+$canvas.droppable({
+  accept:'.pal-item', tolerance:'pointer',
+  drop(e, ui) {
+    const offset = $canvas.offset();
+    const zoom = state.zoom;
+    let x = (ui.offset.left - offset.left) / zoom - 35;
+    let y = (ui.offset.top - offset.top) / zoom - 35;
+    if(state.snapGrid) { x=Math.round(x/state.gridSize)*state.gridSize; y=Math.round(y/state.gridSize)*state.gridSize; }
+    x=Math.max(0,Math.min(x,1900)); y=Math.max(0,Math.min(y,1340));
+    const type = ui.draggable.data('type');
+    saveHistory('Place '+type);
+    placeItem({type, x, y});
+    spawnRipple(x+35, y+35);
+  }
+});
+
+/* ══════════════════════════════════════════════════════
+   7. PLACE ITEM
+══════════════════════════════════════════════════════ */
+function placeItem({type, x, y, id, rotation}={}, isLoad=false) {
+  const itemId = id || state.nextId++;
+  rotation = rotation||0;
+  if(!isLoad) state.items.push({id:itemId, type, x, y, rotation});
+
+  const def = PALETTE.find(d=>d.type===type)||{};
+  const svgHtml = SVG[def.svgKey||type] || `<div style="font-size:2rem;text-align:center;line-height:70px">?</div>`;
+
+  // Determine item class for animation
+  const isPerson = type.startsWith('human_') || type==='police';
+  const isVehicle = ['car','bus','bicycle','truck','ambulance','motorcycle'].includes(type);
+  const isAnimal = ['dog','cat','bird','horse'].includes(type);
+
+  let wrapClass = 'city-item';
+  let animClass = '';
+  if(isPerson) animClass = def.anim||'walking';
+  else if(isVehicle) { animClass = def.anim||'driving'; wrapClass+=' vehicle-item'; }
+  else if(isAnimal) { animClass = def.anim||'roaming'; wrapClass+=' animal-item'; }
+
+  // Info popup
+  const popupInfo = `${def.desc||type} | Pop:${def.pop||0} Green:${def.green||0}% Happy:${def.happy||0}`;
+
+  const $item = $(`
+    <div class="${wrapClass} ${isPerson?'human-item':''} ${isAnimal?'animal-item':''} ${animClass}"
+         data-id="${itemId}" data-type="${type}"
+         style="left:${x}px;top:${y}px">
+      <div class="ci-wrap">
+        <div class="ci-svg" style="width:70px;height:70px">${svgHtml}</div>
+        <div class="ci-ground-shadow"></div>
+        <button class="ci-del" title="Remove">✕</button>
+        <div class="ci-info-pop">${popupInfo}</div>
+      </div>
+      <div class="ci-label ${state.labelsVisible?'':'hidden'}">${def.name||type}</div>
+    </div>
+  `);
+
+  $canvas.append($item);
+
+  // Make static items draggable & resizable
+  if(!isPerson && !isAnimal) {
+    $item.draggable({
+      containment:$canvas, stack:'.city-item',
+      cancel:'.ci-del',
+      grid: state.snapGrid?[state.gridSize,state.gridSize]:false,
+      start(){ saveHistory('Move '+type); },
+      drag(){ updateAllConnLines(); },
+      stop(e,ui){ const rec=state.items.find(i=>i.id===itemId); if(rec){rec.x=ui.position.left;rec.y=ui.position.top;} updateAllConnLines(); }
+    });
+    $item.resizable({
+      handles:'se', minWidth:50, minHeight:50, maxWidth:220, maxHeight:220,
+      containment:$canvas
+    });
+  }
+
+  // Delete
+  $item.find('.ci-del').on('click', function(e){
+    e.stopPropagation();
+    saveHistory('Delete '+type);
+    removeItem(itemId, $item);
+  });
+
+  // Double-click rotate / info modal
+  $item.on('dblclick', function(e){
+    e.stopPropagation();
+    if(state.tool==='select') { showInfoModal(def, svgHtml); return; }
+    rotation=(rotation+45)%360;
+    $(this).find('.ci-wrap').css('transform',`rotate(${rotation}deg)`);
+    const rec=state.items.find(i=>i.id===itemId);
+    if(rec) rec.rotation=rotation;
+  });
+
+  // Click for connection / delete tool
+  $item.on('click', function(e){
+    e.stopPropagation();
+    if(state.tool==='delete') { saveHistory('Delete '+type); removeItem(itemId,$item); return; }
+    if(state.connMode!=='none') handleConnClick(itemId, $item);
+  });
+
+  // Connection dot on hover
+  const $dot = $(`<div class="ci-conn-dot" style="position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;border:2px solid var(--accent);background:#fff;cursor:crosshair;display:none;z-index:30;transition:transform .15s"></div>`);
+  $item.find('.ci-wrap').append($dot);
+  $item.hover(()=>$dot.show(), ()=>$dot.hide());
+  $dot.on('click', e=>{ e.stopPropagation(); handleConnClick(itemId,$item); });
+
+  // Auto-connect adjacent road items
+  if($('#autoConn').is(':checked') && (type==='road'||type==='footpath')) autoConnect(itemId, type);
+
+  if(!isLoad) {
+    updateStats(def,+1);
+    addLog(`🏗️ Placed ${def.name||type}`);
+    showToast(`✅ ${def.name||type} placed!`);
+  }
+  updateBreakdown(); updateCanvasInfo();
+}
+
+/* ══════════════════════════════════════════════════════
+   8. AUTO-CONNECT: roads/footpaths snap to nearest same type
+══════════════════════════════════════════════════════ */
+function autoConnect(newId, type) {
+  const newRec = state.items.find(i=>i.id===newId);
+  if(!newRec) return;
+  const connType = type==='footpath'?'footpath':'road';
+  const MAX_DIST = 130;
+  state.items.forEach(rec=>{
+    if(rec.id===newId || rec.type!==type) return;
+    const dx=rec.x-newRec.x, dy=rec.y-newRec.y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<MAX_DIST) {
+      const dup=state.connections.find(c=>(c.from===newId&&c.to===rec.id)||(c.from===rec.id&&c.to===newId));
+      if(!dup) {
+        const conn={id:state.nextConnId++, from:newId, to:rec.id, type:connType};
+        state.connections.push(conn);
+        state.stats.conns++;
+        drawConnLine(conn);
+        updateConnList();
+        renderStats();
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   9. REMOVE ITEM
+══════════════════════════════════════════════════════ */
+function removeItem(id, $el) {
+  const idx = state.items.findIndex(i=>i.id===id);
+  if(idx===-1) return;
+  const rec = state.items.splice(idx,1)[0];
+  const def = PALETTE.find(d=>d.type===rec.type)||{};
+  state.connections.filter(c=>c.from===id||c.to===id).map(c=>c.id).forEach(cid=>removeConn(cid,false));
+  $el.css({transition:'all .22s ease',transform:'scale(0)',opacity:0});
+  setTimeout(()=>$el.remove(),240);
+  updateStats(def,-1);
+  updateBreakdown(); updateAllConnLines(); updateConnList();
+  addLog(`🗑️ Removed ${def.name||rec.type}`);
+  showToast(`Removed ${def.name||rec.type}`);
+  updateCanvasInfo();
+  if(state.connSource===id) resetConnSource();
+}
+
+/* ══════════════════════════════════════════════════════
+   10. CONNECTIONS
+══════════════════════════════════════════════════════ */
+function handleConnClick(itemId, $el) {
+  if(state.connMode==='none') return;
+  if(state.connSource===null) {
+    state.connSource=itemId;
+    $el.addClass('selected'); // reuse selected ring for highlight
+    showToast('🔗 Now click another item to connect'); addLog(`🔗 Connection started`);
+  } else {
+    if(state.connSource===itemId) { resetConnSource(); showToast('❌ Cancelled'); return; }
+    const dup=state.connections.find(c=>(c.from===state.connSource&&c.to===itemId)||(c.from===itemId&&c.to===state.connSource));
+    if(dup) { showToast('⚠️ Already connected!'); resetConnSource(); return; }
+    const conn={id:state.nextConnId++, from:state.connSource, to:itemId, type:state.connMode};
+    state.connections.push(conn);
+    state.stats.conns++;
+    drawConnLine(conn);
+    updateConnList(); renderStats();
+    const fType=state.items.find(i=>i.id===conn.from)?.type||'item';
+    const tType=state.items.find(i=>i.id===conn.to)?.type||'item';
+    addLog(`🔗 ${conn.type}: ${fType}→${tType}`);
+    showToast(`🔗 ${conn.type} connected!`);
+    resetConnSource();
+  }
+}
+function resetConnSource() {
+  if(state.connSource!==null) $(`.city-item[data-id="${state.connSource}"]`).removeClass('selected');
+  state.connSource=null;
+}
+
+/* ── Draw single connection line with animated dot ── */
+function drawConnLine(conn) {
+  const from=state.items.find(i=>i.id===conn.from);
+  const to=state.items.find(i=>i.id===conn.to);
+  if(!from||!to) return;
+  const fx=from.x+35, fy=from.y+35, tx=to.x+35, ty=to.y+35;
+  const color=CONN_COLORS[conn.type]||'#fff';
+  const w=CONN_W[conn.type]||3;
+  const dash=CONN_DASH[conn.type]||'none';
+  const dx=tx-fx, dy=ty-fy;
+  const dist=Math.sqrt(dx*dx+dy*dy);
+  const cx=((fx+tx)/2)-(dy/dist)*Math.min(dist*.25,50);
+  const cy=((fy+ty)/2)+(dx/dist)*Math.min(dist*.25,50);
+  const d=`M${fx},${fy} Q${cx},${cy} ${tx},${ty}`;
+
+  const $g=$(document.createElementNS('http://www.w3.org/2000/svg','g'));
+  $g.attr('data-conn-id',conn.id);
+
+  // Shadow/casing for roads
+  if(conn.type==='road'||conn.type==='footpath') {
+    const shadow=document.createElementNS('http://www.w3.org/2000/svg','path');
+    $(shadow).attr({d,stroke:'rgba(0,0,0,.25)','stroke-width':w+4,fill:'none','stroke-linecap':'round'});
+    $g.append(shadow);
+    // Center line markings for road
+    if(conn.type==='road') {
+      const centerLine=document.createElementNS('http://www.w3.org/2000/svg','path');
+      $(centerLine).attr({d,stroke:'#ffd700','stroke-width':'1.5',fill:'none','stroke-dasharray':'10,10','stroke-linecap':'round'});
+      $g.append(centerLine);
+    }
+  }
+
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  $(path).attr({d,stroke:color,'stroke-width':w,fill:'none','stroke-dasharray':dash,'stroke-linecap':'round','class':'conn-line '+conn.type+'-conn'});
+  $g.append(path);
+
+  // Hit area (invisible)
+  const hitPath=document.createElementNS('http://www.w3.org/2000/svg','path');
+  $(hitPath).attr({d,stroke:'transparent','stroke-width':'20',fill:'none',cursor:'pointer'})
+    .on('click',()=>{ if(confirm('Delete this connection?')) removeConn(conn.id); });
+  $g.append(hitPath);
+
+  // Animated travel dot
+  const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  const dotColor=conn.type==='road'?'#ffd700':conn.type==='footpath'?'#8d6e63':color;
+  $(dot).attr({r: conn.type==='road'?4:2.5, fill:dotColor, opacity:'.9', class:'conn-dot'});
+  const anim=document.createElementNS('http://www.w3.org/2000/svg','animateMotion');
+  const dur=conn.type==='road'?'4s':conn.type==='footpath'?'6s':'3s';
+  $(anim).attr({dur, repeatCount:'indefinite', path:d});
+  dot.appendChild(anim);
+  $g.append(dot);
+
+  // For power lines, add small pylon circles at endpoints
+  if(conn.type==='power') {
+    [fx,tx].forEach((ex,i)=>{
+      const [ey]=i===0?[fy]:[ty];
+      const pylon=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      $(pylon).attr({cx:ex,cy:ey,r:5,fill:'#fbbf24',stroke:'#78350f','stroke-width':1.5});
+      $g.append(pylon);
+    });
+  }
+  // For water pipes, add pipe joints
+  if(conn.type==='water') {
+    [fx,tx].forEach((ex,i)=>{
+      const [ey]=i===0?[fy]:[ty];
+      const joint=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      $(joint).attr({cx:ex,cy:ey,r:4,fill:'#0ea5e9',stroke:'#0369a1','stroke-width':1.5});
+      $g.append(joint);
+    });
+  }
+
+  if(state.connsVisible) $connSvg.append($g[0]);
+}
+
+function updateAllConnLines() { $connSvg.empty(); if(state.connsVisible) state.connections.forEach(c=>drawConnLine(c)); }
+
+function removeConn(connId, doUI=true) {
+  const idx=state.connections.findIndex(c=>c.id===connId);
+  if(idx===-1) return;
+  state.connections.splice(idx,1);
+  if(state.stats.conns>0) state.stats.conns--;
+  $connSvg.find(`[data-conn-id="${connId}"]`).remove();
+  updateConnList(); renderStats();
+  if(doUI) { addLog('🔗 Connection removed'); showToast('Connection removed'); }
+}
+
+function updateConnList() {
+  const $p=$('#connListPanel').empty();
+  if(!state.connections.length){ $p.html('<div class="bempty">No connections yet</div>'); return; }
+  state.connections.forEach(c=>{
+    const fType=state.items.find(i=>i.id===c.from)?.type||'?';
+    const tType=state.items.find(i=>i.id===c.to)?.type||'?';
+    const icons={road:'🛣',footpath:'🚶',power:'⚡',water:'💧'};
+    $p.append(`<div class="conn-entry"><span>${icons[c.type]||'🔗'} ${fType}→${tType}</span><button class="cdel" data-cid="${c.id}">✕</button></div>`);
+  });
+}
+$(document).on('click','.cdel',function(){removeConn(+$(this).data('cid'));});
+
+/* ══════════════════════════════════════════════════════
+   11. STATS ENGINE
+══════════════════════════════════════════════════════ */
+function updateStats(def, sign) {
+  state.stats.pop   = Math.max(0, state.stats.pop   + (def.pop  ||0)*sign);
+  state.stats.green = Math.max(0, state.stats.green + (def.green||0)*sign);
+  state.stats.happy = Math.max(0, Math.min(100, state.stats.happy + (def.happy||0)*sign));
+  state.stats.roads = Math.max(0, state.stats.roads + (def.road ||0)*sign);
+  state.stats.total = Math.max(0, state.stats.total + sign);
+  renderStats();
+}
+function recalcStats() {
+  state.stats={pop:0,green:0,happy:50,roads:0,total:0,conns:state.connections.length,vehicles:0};
+  state.items.forEach(item=>{
+    const def=PALETTE.find(d=>d.type===item.type)||{};
+    state.stats.pop   = Math.max(0,state.stats.pop  +(def.pop  ||0));
+    state.stats.green = Math.max(0,state.stats.green+(def.green||0));
+    state.stats.happy = Math.min(100,state.stats.happy+(def.happy||0));
+    state.stats.roads += (def.road||0);
+    state.stats.total++;
+  });
+  renderStats();
+}
+function renderStats() {
+  const {pop,green,happy,roads,total,conns}=state.stats;
+  bump('#stPop',pop); bump('#stGreen',green+'%'); bump('#stHappy',Math.round(happy)+'%'); bump('#stItems',total);
+  const trafficLvl=roads<5?'Low':roads<15?'Medium':roads<30?'Busy':'Congested';
+  $('#stTraffic').text(trafficLvl);
+  $('#bPop').css('width',Math.min((pop/1000)*100,100)+'%');
+  $('#bGreen').css('width',Math.min((green/50)*100,100)+'%');
+  $('#bHappy').css('width',Math.min(happy,100)+'%');
+  $('#bTraffic').css('width',Math.min((roads/40)*100,100)+'%');
+  const score = pop + green*8 + happy*3 + roads*4 + conns*15;
+  bump('#stScore',score);
+  let grade='— Place your first building!';
+  if(score>=5000)      grade='🏆 World-Class Metropolis!';
+  else if(score>=3000) grade='🌆 Thriving Megacity';
+  else if(score>=1500) grade='🏙️ Major City';
+  else if(score>=700)  grade='🏘️ Growing Town';
+  else if(score>=200)  grade='🏡 Village';
+  else if(score>=50)   grade='🛖 First Structures';
+  $('#stGrade').text(grade);
+  $('#stTimeLbl').text(TOD_NAMES[state.tod]||'');
+}
+function bump(sel,val){ $(sel).text(val).addClass('bump'); setTimeout(()=>$(sel).removeClass('bump'),300); }
+
+function updateBreakdown() {
+  const counts={};
+  state.items.forEach(i=>{ counts[i.type]=(counts[i.type]||0)+1; });
+  const $l=$('#bdownList').empty();
+  const keys=Object.keys(counts);
+  if(!keys.length){ $l.html('<div class="bempty">No items yet</div>'); return; }
+  keys.forEach(t=>{ const def=PALETTE.find(d=>d.type===t)||{name:t}; $l.append(`<div class="brow"><span>${def.name}</span><strong>${counts[t]}</strong></div>`); });
+}
+
+/* ══════════════════════════════════════════════════════
+   12. HISTORY SYSTEM
+══════════════════════════════════════════════════════ */
+function saveHistory(action) {
+  const snapshot = {
+    action, ts:Date.now(),
+    items:JSON.parse(JSON.stringify(state.items)),
+    connections:JSON.parse(JSON.stringify(state.connections)),
+    stats:JSON.parse(JSON.stringify(state.stats)),
+    nextId:state.nextId, nextConnId:state.nextConnId
+  };
+  state.history.unshift(snapshot);
+  if(state.history.length>state.historyMax) state.history.pop();
+  renderHistory();
+}
+function renderHistory() {
+  const $l=$('#histList').empty();
+  if(!state.history.length){ $l.html('<div class="bempty">No history yet</div>'); return; }
+  state.history.forEach((h,i)=>{
+    const t=new Date(h.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    $l.append(`<div class="hist-item" data-idx="${i}">
+      <span class="hist-ico">🕐</span>
+      <span>${h.action} (${h.items.length} items)</span>
+      <span class="hist-time">${t}</span>
+      <button class="hist-restore" data-idx="${i}">↩</button>
+    </div>`);
+  });
+}
+$(document).on('click','.hist-restore',function(e){
+  e.stopPropagation();
+  const idx=+$(this).data('idx');
+  const snap=state.history[idx];
+  if(!snap) return;
+  restoreSnapshot(snap);
+  showToast('↩️ Restored: '+snap.action);
+  addLog('↩️ History restored: '+snap.action);
+});
+function restoreSnapshot(snap) {
+  clearCanvas(false);
+  state.nextId=snap.nextId||1;
+  state.nextConnId=snap.nextConnId||1;
+  snap.items.forEach(item=>{ state.items.push(item); placeItem(item,true); });
+  snap.connections.forEach(conn=>{ state.connections.push(conn); drawConnLine(conn); });
+  Object.assign(state.stats,snap.stats);
+  recalcStats(); updateBreakdown(); updateConnList(); updateCanvasInfo();
+}
+
+/* Undo last action */
+$('#btnUndo').on('click',function(){
+  if(state.history.length<2){ showToast('Nothing to undo'); return; }
+  state.history.shift(); // remove current
+  const snap=state.history[0];
+  if(snap) { restoreSnapshot(snap); showToast('↩️ Undo'); }
+});
+
+/* ══════════════════════════════════════════════════════
+   13. TIME OF DAY
+══════════════════════════════════════════════════════ */
+$('.tod-btn').on('click',function(){
+  const tod=$(this).data('tod');
+  state.tod=tod;
+  $('html').attr('data-tod',tod);
+  $('.tod-btn').removeClass('active');
+  $(this).addClass('active');
+  renderStats();
+  adjustMusicForTOD(tod);
+  // Adjust human behavior speed
+  const speed={morning:'8s',afternoon:'5s',evening:'12s',night:'20s'}[tod];
+  $('.human-item.walking').css('animation-duration',speed);
+  addLog(`🌅 Time of day: ${tod}`);
+  showToast(`${$(this).text()} — city adjusts!`);
+});
+
+function adjustMusicForTOD(tod) {
+  const tIdx={morning:0,afternoon:1,evening:2,night:3}[tod]||0;
+  state.musicTrack=tIdx;
+  $('#mpTrack').text(TRACKS[tIdx].name);
+  if(state.musicPlaying) { stopMusic(); startMusic(); }
+}
+
+/* ══════════════════════════════════════════════════════
+   14. MUSIC PLAYER (Web Audio API)
+══════════════════════════════════════════════════════ */
+$('#musicToggle').on('click',function(){
+  $('#musicPlayer').toggle();
+  if(!AudioCtx) initAudio();
+});
+function initAudio() {
+  try { AudioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e) { return; }
+}
+function startMusic() {
+  if(!AudioCtx) initAudio();
+  if(!AudioCtx) return;
+  stopMusic();
+  const track = TRACKS[state.musicTrack];
+  // Generate ambient city soundscape using oscillators
+  musicNodes = {};
+  // Base drone
+  const osc1 = AudioCtx.createOscillator();
+  const gain1 = AudioCtx.createGain();
+  osc1.frequency.value = track.freq * 0.5;
+  osc1.type = 'sine';
+  gain1.gain.value = 0.04;
+  osc1.connect(gain1); gain1.connect(AudioCtx.destination);
+  osc1.start();
+  // Melody line
+  const osc2 = AudioCtx.createOscillator();
+  const gain2 = AudioCtx.createGain();
+  osc2.frequency.value = track.freq;
+  osc2.type = 'triangle';
+  gain2.gain.value = 0.03;
+  const lfo = AudioCtx.createOscillator();
+  const lfoGain = AudioCtx.createGain();
+  lfo.frequency.value = 0.2;
+  lfoGain.gain.value = track.freq * 0.05;
+  lfo.connect(lfoGain); lfoGain.connect(osc2.frequency);
+  lfo.start();
+  osc2.connect(gain2); gain2.connect(AudioCtx.destination);
+  osc2.start();
+  // Rhythm pad
+  const osc3 = AudioCtx.createOscillator();
+  const gain3 = AudioCtx.createGain();
+  osc3.frequency.value = track.freq * 1.5;
+  osc3.type = 'square';
+  gain3.gain.value = 0.015;
+  osc3.connect(gain3); gain3.connect(AudioCtx.destination);
+  osc3.start();
+  musicNodes = {osc1,osc2,osc3,gain1,gain2,gain3,lfo,lfoGain};
+  state.musicPlaying = true;
+  $('#mpPlay').text('⏸'); $('#mpVis').removeClass('paused');
+}
+function stopMusic() {
+  Object.values(musicNodes).forEach(n=>{ try{ if(n.stop) n.stop(); }catch(e){} });
+  musicNodes = {};
+  state.musicPlaying = false;
+  $('#mpPlay').text('▶'); $('#mpVis').addClass('paused');
+}
+$('#mpPlay').on('click',function(){ state.musicPlaying?stopMusic():startMusic(); });
+$('#mpNext').on('click',function(){ state.musicTrack=(state.musicTrack+1)%TRACKS.length; $('#mpTrack').text(TRACKS[state.musicTrack].name); if(state.musicPlaying){stopMusic();startMusic();} });
+$('#mpPrev').on('click',function(){ state.musicTrack=(state.musicTrack-1+TRACKS.length)%TRACKS.length; $('#mpTrack').text(TRACKS[state.musicTrack].name); if(state.musicPlaying){stopMusic();startMusic();} });
+$('#mpVol').on('input',function(){ Object.entries(musicNodes).forEach(([k,n])=>{ if(k.startsWith('gain')) { try{ n.gain.value=parseFloat($(this).val())*0.08; }catch(e){} } }); });
+
+/* ══════════════════════════════════════════════════════
+   15. ZOOM & TOOLS
+══════════════════════════════════════════════════════ */
+const ZOOMS=[0.35,0.5,0.65,0.8,1,1.25,1.5,2];
+let zoomIdx=4;
+function applyZoom(){ state.zoom=ZOOMS[zoomIdx]; $canvas.css('transform',`scale(${state.zoom})`); $('#zLbl').text(Math.round(state.zoom*100)+'%'); }
+$('#zIn').on('click',()=>{ if(zoomIdx<ZOOMS.length-1){zoomIdx++;applyZoom();} });
+$('#zOut').on('click',()=>{ if(zoomIdx>0){zoomIdx--;applyZoom();} });
+$('#zFit').on('click',()=>{ zoomIdx=4; applyZoom(); $('#cvp').scrollTop(0).scrollLeft(0); });
+$('#cvp').on('wheel',function(e){ e.preventDefault(); const d=e.originalEvent.deltaY; if(d<0){if(zoomIdx<ZOOMS.length-1){zoomIdx++;applyZoom();}}else{if(zoomIdx>0){zoomIdx--;applyZoom();}} });
+
+$('#toolSelect,#toolMove,#toolDelete').on('click',function(){
+  $('.ctool[id^="tool"]').removeClass('active');
+  $(this).addClass('active');
+  state.tool=$(this).attr('id').replace('tool','');
+  $('#cvp').css('cursor',state.tool==='move'?'grab':state.tool==='delete'?'crosshair':'default');
+  showToast('Tool: '+state.tool);
+});
+
+/* ══════════════════════════════════════════════════════
+   16. LAYERS
+══════════════════════════════════════════════════════ */
+$('#toggleGrid').on('change',function(){ $('#gridLayer').toggleClass('hidden',!$(this).is(':checked')); });
+$('#toggleConns').on('change',function(){
+  state.connsVisible=$(this).is(':checked');
+  if(state.connsVisible) updateAllConnLines(); else $connSvg.empty();
+});
+$('#toggleLabels').on('change',function(){
+  state.labelsVisible=$(this).is(':checked');
+  $('.ci-label').toggleClass('hidden',!state.labelsVisible);
+});
+$('#toggleAnims').on('change',function(){
+  state.animsEnabled=$(this).is(':checked');
+  const aStyle=state.animsEnabled?'':'none';
+  $('.human-item,.vehicle-item,.animal-item,.city-item[data-type="car"],.city-item[data-type="bus"]').css('animation',aStyle);
+  if(state.animsEnabled) location.reload(); // easiest way to restart CSS anims
+});
+
+/* ══════════════════════════════════════════════════════
+   17. SAVE / LOAD
+══════════════════════════════════════════════════════ */
+const SKEY='urbanforge3d_v1';
+$('#btnSave').on('click',function(){
+  try{
+    saveHistory('Manual Save');
+    localStorage.setItem(SKEY,JSON.stringify({items:state.items,connections:state.connections,tod:state.tod,nextId:state.nextId,nextConnId:state.nextConnId}));
+    showToast('💾 City saved to browser!'); addLog('💾 City saved');
+  }catch(e){showToast('⚠️ Save failed');}
+});
+$('#btnLoad').on('click',function(){
+  try{
+    const raw=localStorage.getItem(SKEY);
+    if(!raw){showToast('⚠️ No saved city found');return;}
+    const data=JSON.parse(raw);
+    clearCanvas(false);
+    state.nextId=data.nextId||1; state.nextConnId=data.nextConnId||1;
+    if(data.tod){state.tod=data.tod;$('html').attr('data-tod',state.tod);$('.tod-btn').removeClass('active');$(`.tod-btn[data-tod="${data.tod}"]`).addClass('active');}
+    (data.items||[]).forEach(item=>{state.items.push(item);placeItem(item,true);});
+    (data.connections||[]).forEach(conn=>{state.connections.push(conn);drawConnLine(conn);});
+    recalcStats();updateBreakdown();updateConnList();renderHistory();updateCanvasInfo();
+    showToast('📂 City loaded!'); addLog('📂 City loaded');
+  }catch(e){showToast('⚠️ Load failed');console.error(e);}
+});
+
+/* ══════════════════════════════════════════════════════
+   18. DOWNLOAD / EXPORT
+══════════════════════════════════════════════════════ */
+$('#btnDownload').on('click',async function(){
+  showToast('📸 Capturing city…');
+  try {
+    // Use html2canvas to capture the canvas area
+    const $cvp = document.getElementById('cvp');
+    const canvas = await html2canvas($cvp, {
+      useCORS:true, allowTaint:true,
+      backgroundColor: null,
+      scale:1,
+      logging:false
+    });
+    const link=document.createElement('a');
+    link.download=`UrbanForge3D_${new Date().toISOString().slice(0,10)}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+    showToast('✅ City exported as PNG!');
+    addLog('📸 City exported to PNG');
+  } catch(e) {
+    // Fallback: save as JSON
+    const json=JSON.stringify({items:state.items,connections:state.connections,tod:state.tod},null,2);
+    const blob=new Blob([json],{type:'application/json'});
+    const link=document.createElement('a');
+    link.download=`UrbanForge3D_${new Date().toISOString().slice(0,10)}.json`;
+    link.href=URL.createObjectURL(blob);
+    link.click();
+    showToast('✅ Exported as JSON (enable CORS for PNG)');
+  }
+});
+
+/* ══════════════════════════════════════════════════════
+   19. CLEAR
+══════════════════════════════════════════════════════ */
+function clearCanvas(doToast=true) {
+  saveHistory('Clear canvas');
+  $('.city-item,.human-item,.vehicle-item,.animal-item').css({transition:'all .22s',transform:'scale(0)',opacity:0});
+  setTimeout(()=>$('.city-item,.human-item,.vehicle-item,.animal-item').remove(),240);
+  $connSvg.empty();
+  state.items=[]; state.connections=[]; state.nextId=1; state.nextConnId=1;
+  state.stats={pop:0,green:0,happy:50,roads:0,total:0,conns:0,vehicles:0};
+  state.connSource=null;
+  setTimeout(()=>{renderStats();updateBreakdown();updateConnList();updateCanvasInfo();},260);
+  if(doToast){showToast('🗑️ Canvas cleared');addLog('🗑️ Canvas cleared');}
+}
+$('#btnClear').on('click',function(){
+  if(!state.items.length){showToast('Canvas is empty!');return;}
+  if(confirm(`Remove all ${state.items.length} items and ${state.connections.length} connections?`)) clearCanvas();
+});
+
+/* ══════════════════════════════════════════════════════
+   20. SEARCH & FILTER
+══════════════════════════════════════════════════════ */
+let activeCat='all';
+$('#palSearch').on('input',function(){ buildPalette(activeCat,$(this).val()); });
+$('#filterRow').on('click','.flt',function(){
+  activeCat=$(this).data('cat');
+  $('.flt').removeClass('on'); $(this).addClass('on');
+  buildPalette(activeCat,$('#palSearch').val());
+});
+
+/* ══════════════════════════════════════════════════════
+   21. CONNECTION MODE
+══════════════════════════════════════════════════════ */
+$('.ctype').on('click',function(){
+  state.connMode=$(this).data('conn');
+  $('.ctype').removeClass('on'); $(this).addClass('on');
+  if(state.connMode==='none') resetConnSource();
+  showToast(state.connMode==='none'?'Connection mode OFF':`🔗 ${state.connMode} mode`);
+});
+
+/* ══════════════════════════════════════════════════════
+   22. SNAP GRID & AUTO-CONN
+══════════════════════════════════════════════════════ */
+$('#snapGrid').on('change',function(){ state.snapGrid=$(this).is(':checked'); showToast('Snap: '+(state.snapGrid?'ON':'OFF')); });
+
+/* ══════════════════════════════════════════════════════
+   23. TABS
+══════════════════════════════════════════════════════ */
+$('.stab').on('click',function(){
+  const tab=$(this).data('tab');
+  $('.stab').removeClass('active'); $(this).addClass('active');
+  $('.stab-content').removeClass('active'); $(`#tab-${tab}`).addClass('active');
+});
+
+/* ══════════════════════════════════════════════════════
+   24. INFO MODAL
+══════════════════════════════════════════════════════ */
+function showInfoModal(def, svgHtml) {
+  $('#modalTitle').text(def.name||def.type||'Item');
+  $('#modalBody').html(`
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:10px">
+      <div style="width:80px;height:80px;flex-shrink:0">${svgHtml}</div>
+      <div>
+        <p><b>Category:</b> ${def.cat||'-'}</p>
+        <p><b>Population:</b> ${def.pop>0?'+'+def.pop:def.pop||0}</p>
+        <p><b>Greenery:</b> ${def.green>0?'+':''+(def.green||0)}%</p>
+        <p><b>Happiness:</b> ${def.happy>0?'+':''+(def.happy||0)}</p>
+        <p><b>Roads:</b> ${def.road>0?'+'+def.road:def.road||0}</p>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--txt2)">${def.desc||''}</p>
+  `);
+  $('#infoModal').addClass('show');
+}
+$('#modalClose, #infoModal').on('click',function(e){
+  if(e.target===this) $('#infoModal').removeClass('show');
+});
+
+/* ══════════════════════════════════════════════════════
+   25. ENVIRONMENT: Stars, Clouds
+══════════════════════════════════════════════════════ */
+function buildStars() {
+  const $svg=$('#starsSvg');
+  let html='';
+  for(let i=0;i<200;i++){
+    const x=Math.random()*2000, y=Math.random()*620;
+    const r=Math.random()*.8+.4, op=Math.random()*.7+.3;
+    const dur=(Math.random()*3+2).toFixed(1);
+    html+=`<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity="${op}"><animate attributeName="opacity" values="${op};${op*.3};${op}" dur="${dur}s" repeatCount="indefinite"/></circle>`;
+  }
+  $svg.html(html);
+}
+function buildClouds() {
+  const $cl=$('#cloudLayer');
+  const clouds=[
+    {w:140,t:'5%',l:'8%',dur:'80s'},{w:100,t:'12%',l:'40%',dur:'65s'},
+    {w:160,t:'3%',l:'70%',dur:'95s'},{w:90,t:'18%',l:'55%',dur:'55s'}
+  ];
+  clouds.forEach((c,i)=>{
+    $cl.append(`<svg class="cloud-svg" style="top:${c.t};left:${c.l};width:${c.w}px" viewBox="0 0 140 55">
+      <ellipse cx="70" cy="38" rx="65" ry="17" fill="white" opacity=".85"/>
+      <ellipse cx="50" cy="28" rx="35" ry="22" fill="white" opacity=".9"/>
+      <ellipse cx="92" cy="26" rx="32" ry="20" fill="white" opacity=".9"/>
+      <animateTransform attributeName="transform" type="translate" from="0,0" to="${1800+i*200},0" dur="${c.dur}" repeatCount="indefinite"/>
+    </svg>`);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   26. RIPPLE & CANVAS INFO & LOG
+══════════════════════════════════════════════════════ */
+function spawnRipple(x,y){
+  const $r=$('<div class="drop-ripple">').css({left:x,top:y});
+  $canvas.append($r); setTimeout(()=>$r.remove(),750);
+}
+function updateCanvasInfo(){
+  const n=state.items.length,c=state.connections.length;
+  if(!n){$('#cInfo').text('Drop items from palette • click items to connect • dbl-click for info');return;}
+  $('#cInfo').text(`${n} structure${n!==1?'s':''} • ${c} link${c!==1?'s':''} • Ctrl+Z undo`);
+}
+function addLog(msg){
+  const t=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const $l=$('#logList');
+  $l.find('.log-entry.muted').remove();
+  $(`<div class="log-entry">${t} — ${msg}</div>`).prependTo($l);
+  $l.find('.log-entry:gt(29)').remove();
+}
+let toastTimer;
+function showToast(msg){ clearTimeout(toastTimer); $('#toast').text(msg).addClass('show'); toastTimer=setTimeout(()=>$('#toast').removeClass('show'),2600); }
+
+/* ══════════════════════════════════════════════════════
+   27. KEYBOARD SHORTCUTS
+══════════════════════════════════════════════════════ */
+$(document).on('keydown',function(e){
+  if(e.ctrlKey&&e.key==='s'){e.preventDefault();$('#btnSave').trigger('click');}
+  if(e.ctrlKey&&e.key==='z'){e.preventDefault();$('#btnUndo').trigger('click');}
+  if(e.ctrlKey&&e.key==='d'){e.preventDefault();$('#btnDownload').trigger('click');}
+  if(e.key==='Escape'){resetConnSource();showToast('Connection cancelled');}
+  if(e.key==='Delete'&&state.connSource){/* handled per item */}
+  // Number keys for TOD
+  if(e.key==='1')$(`.tod-btn[data-tod="morning"]`).trigger('click');
+  if(e.key==='2')$(`.tod-btn[data-tod="afternoon"]`).trigger('click');
+  if(e.key==='3')$(`.tod-btn[data-tod="evening"]`).trigger('click');
+  if(e.key==='4')$(`.tod-btn[data-tod="night"]`).trigger('click');
+});
+
+/* ══════════════════════════════════════════════════════
+   28. SIMULATED CITY CLOCK (updates every 5 seconds)
+══════════════════════════════════════════════════════ */
+setInterval(()=>{
+  const todMap={morning:360,afternoon:750,evening:1110,night:1380};
+  state.cityTime = (state.cityTime + 1) % 1440;
+}, 5000);
+
+/* ══════════════════════════════════════════════════════
+   29. INIT
+══════════════════════════════════════════════════════ */
+buildPalette();
+buildStars();
+buildClouds();
+$('html').attr('data-tod',state.tod);
+renderStats();
+updateCanvasInfo();
+updateConnList();
+renderHistory();
+
+// Staggered stat card entrance
+$('.stat-card').each(function(i){
+  const $c=$(this).css({opacity:0,transform:'translateY(6px)',transition:'all .4s ease'});
+  setTimeout(()=>$c.css({opacity:1,transform:'translateY(0)'}),80+i*60);
+});
+
+// Welcome
+setTimeout(()=>{
+  showToast('🏙️ UrbanForge 3D — Press 1-4 for time of day, Ctrl+S to save!');
+  addLog('🌆 UrbanForge 3D started. Build your living city!');
+}, 800);
+
+}); // end $(function)
+
+</script>
+</body>
+</html>
